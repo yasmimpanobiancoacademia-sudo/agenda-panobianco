@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Agenda de Consultores</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#f5f4f0;--surface:#fff;--surface2:#f0efe9;
+  --border:rgba(0,0,0,.1);--border2:rgba(0,0,0,.18);
+  --text:#1a1a18;--text2:#6b6b65;--text3:#9b9b93;
+  --blue-bg:#deeaf7;--blue-tc:#1a4f82;
+  --green-bg:#d8f0d0;--green-tc:#1e5c1a;
+  --purple-bg:#c8e8c0;--purple-tc:#1a5216;
+  --amber-bg:#fdefd0;--amber-tc:#7a4800;
+  --red:#c0392b;--r:10px;--rl:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+.app-topbar{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;padding:0 20px;align-items:stretch}
+.app-tab{font-size:13px;font-weight:500;padding:14px 20px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:7px}
+.app-tab:hover{color:var(--text)}
+.app-tab.active{color:var(--text);border-bottom-color:var(--text)}
+.app-tab-badge{font-size:10px;font-weight:600;padding:1px 7px;border-radius:20px;background:var(--surface2);color:var(--text2)}
+.app-tab.active .app-tab-badge{background:var(--text);color:#fff}
+.topbar-date{margin-left:auto;display:flex;align-items:center;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;padding:0 4px}
+.main{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
+.section-label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.metric-label{font-size:11px;color:var(--text2);margin-bottom:4px}
+.metric-val{font-size:26px;font-weight:600;letter-spacing:-.03em;line-height:1}
+.metric-sub{font-size:11px;color:var(--text3);margin-top:4px}
+.tab-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.tab{font-size:13px;font-weight:500;padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all .15s}
+.tab:hover{border-color:var(--border2);color:var(--text)}
+.tab.active{background:var(--text);color:#fff;border-color:var(--text)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+select,input[type=date]{font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 11px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);color:var(--text);outline:none}
+select:focus,input[type=date]:focus{border-color:var(--border2)}
+.btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:7px 14px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;transition:all .15s}
+.btn:hover{background:var(--surface2)}
+.btn-primary{background:var(--text);color:#fff;border-color:var(--text)}
+.btn-primary:hover{background:#333}
+.btn-danger{color:var(--red);border-color:#f5c6c3}
+.btn-sm{font-size:12px;padding:5px 10px}
+.btn-success{background:#1e5c1a;color:#fff;border-color:#1e5c1a}
+.btn-success:hover{background:#164d14}
+.btn-cancel{color:#7a1a1a;border-color:#f5c6c3;background:#fff5f5}
+.btn-cancel:hover{background:#fee2e2}
+.sb-ca{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:#fee2e2;color:#7a1a1a}
+.transp-section{margin-top:14px}
+.transp-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.transp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;min-width:110px;flex:1}
+.transp-card-icon{font-size:18px;margin-bottom:4px}
+.transp-card-val{font-size:22px;font-weight:700;color:var(--text)}
+.transp-card-lbl{font-size:11px;color:var(--text2);margin-top:2px}
+.transp-card-week{font-size:10px;color:var(--text3);margin-top:1px}
+.metric-card-alert{background:#fff5f5;border:1px solid #f5c6c3;border-radius:var(--r);padding:14px 16px}
+.month-nav{display:flex;align-items:center;gap:8px}
+.month-label{font-size:14px;font-weight:600;min-width:130px;text-align:center}
+.gantt-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);overflow:auto}
+.gantt-inner{min-width:700px}
+.zoom-bar{display:flex;align-items:center;gap:10px;padding:6px 0 4px 0;font-size:12px;color:var(--text2)}
+.zoom-bar input[type=range]{width:140px;accent-color:var(--text)}
+.gantt-head{display:flex;border-bottom:1px solid var(--border);background:var(--surface2)}
+.g-name-col{min-width:260px;width:260px;padding:8px 12px;font-size:11px;font-weight:600;color:var(--text2);border-right:1px solid var(--border);flex-shrink:0}
+.g-days-row{flex:none;display:flex}
+.g-day-hdr{flex:none;width:var(--day-w,40px);text-align:center;font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);padding:8px 2px;border-right:1px solid var(--border)}
+.g-day-hdr:last-child{border-right:none}
+.g-day-hdr.wknd{background:#fef9c3;color:#854d0e}
+.g-row{display:flex;border-bottom:1px solid var(--border);min-height:46px}
+.g-row:last-child{border-bottom:none}
+.g-row:hover{background:#fafaf8}
+.g-name{min-width:260px;width:260px;padding:8px 12px;font-size:13px;font-weight:500;color:var(--text);border-right:1px solid var(--border);display:block;flex-shrink:0;overflow:hidden}
+.g-cells{flex:1;display:flex;position:relative;align-items:stretch}
+.g-cell{flex:none;width:var(--day-w,40px);height:100%;border-right:1px solid var(--border);position:relative}
+.g-cell:last-child{border-right:none}
+.g-cell.wknd{background:#fef9c3}
+.g-block{position:absolute;height:26px;border-radius:5px;font-size:10px;font-weight:500;padding:0 6px;display:flex;align-items:center;overflow:hidden;white-space:nowrap;cursor:pointer;z-index:2;transition:opacity .1s}
+.g-block:hover{opacity:.82}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--text2);margin-bottom:12px}
+.ldot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.ind-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px;margin-bottom:8px}
+.ind-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.ind-info{flex:1;min-width:130px}
+.ind-name{font-size:13px;font-weight:600}
+.pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.pill{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.pill-m{background:var(--blue-bg);color:var(--blue-tc)}
+.pill-a{background:var(--purple-bg);color:var(--purple-tc)}
+.ind-bar-wrap{flex:2;min-width:120px}
+.ind-bar-track{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:3px}
+.ind-bar-fill{height:100%;border-radius:3px}
+.ind-bar-lbl{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace}
+.ind-pct{font-size:15px;font-weight:600;min-width:44px;text-align:right;font-family:'DM Mono',monospace}
+.cons-pick-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:24px;margin-bottom:16px}
+.cons-pick-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.cons-pick-sub{font-size:13px;color:var(--text2);margin-bottom:14px}
+.cons-pick-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.cons-pick-row select{font-size:14px;padding:9px 12px;flex:1;min-width:200px;max-width:360px}
+.cons-header{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:16px 20px;margin-bottom:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.cons-hname{font-size:17px;font-weight:600;letter-spacing:-.02em}
+.cons-hsub{font-size:12px;color:var(--text2);margin-top:2px}
+.cons-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:16px}
+.cons-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:11px 14px}
+.cons-stat .lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:3px}
+.cons-stat .val{font-size:20px;font-weight:600;letter-spacing:-.03em}
+.cons-stat .sub{font-size:10px;color:var(--text3);margin-top:2px}
+.visit-list-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:16px}
+.vlist-header{padding:11px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.vlist-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em}
+.visit-row{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap}
+.visit-row:last-child{border-bottom:none}
+.visit-row:hover{background:#fafaf8}
+.visit-unidade{font-size:13px;font-weight:500;flex:1;min-width:140px}
+.visit-date{font-size:11px;color:var(--text2);font-family:'DM Mono',monospace;white-space:nowrap}
+.sb-ag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--amber-bg);color:var(--amber-tc)}
+.sb-re{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--green-bg);color:var(--green-tc)}
+.tb-m{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--blue-bg);color:var(--blue-tc)}
+.tb-a{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--purple-bg);color:var(--purple-tc)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
+.modal-box{background:var(--surface);border-radius:var(--rl);border:1px solid var(--border);padding:20px;width:350px;max-width:100%;animation:mIn .15s ease;max-height:90vh;overflow-y:auto}
+@keyframes mIn{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+.modal-title{font-size:15px;font-weight:600;margin-bottom:14px}
+.form-row{display:flex;flex-direction:column;gap:4px;margin-bottom:11px}
+.form-row label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.form-row input,.form-row select{font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 11px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);color:var(--text);outline:none;transition:border-color .15s}
+.form-row input:focus,.form-row select:focus{border-color:var(--text)}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.conf-alert{background:var(--amber-bg);border:1px solid #e8c870;border-radius:var(--r);padding:9px 12px;font-size:12px;color:var(--amber-tc);margin-bottom:12px;display:none}
+.conf-alert.show{display:block}
+.empty{padding:24px;text-align:center;font-size:13px;color:var(--text3)}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<style>
+#map-container{width:100%;height:520px;border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+.map-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.map-leg-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)}
+.map-leg-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.map-filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.map-filter-bar label{font-size:12px;color:var(--text2)}
+</style>
+</head>
+<body>
+
+<div class="app-topbar">
+  <img src="data:image/png;base64,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" alt="Panobianco Academia" style="height:80px;object-fit:contain;margin-right:8px;flex-shrink:0"/>
+  <div class="app-tab active" id="atab-g" onclick="switchView('gestor')">
+    Gestor <span class="app-tab-badge" id="badge-g">dashboard</span>
+  </div>
+  <div class="app-tab" id="atab-c" onclick="switchView('consultor')">
+    Consultor <span class="app-tab-badge" id="badge-c">preencher visitas</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;margin-left:auto;padding:0 4px">
+    <span id="sync-status" style="font-size:11px;font-family:'DM Mono',monospace;color:#9b9b93"></span>
+    <button class="btn" style="font-size:11px;padding:4px 10px" onclick="syncManual()">&#8635; Sync</button>
+    <div class="topbar-date" id="today-lbl"></div>
+  </div>
+</div>
+
+<div class="main">
+  <div id="view-g"></div>
+  <div id="view-c" style="display:none"></div>
+</div>
+
+<script>
+// ─── DADOS ────────────────────────────────────────────────────────────────────
+const CONS = ['Ariadine Oliveira','Camila Toffoli','Daiana Ribeiro','Geraldo Ribeiro','Jani/Tami','Karina Morais','Matheus Vinicius','Nicolas Zerbinatti','Ricardo Andrade','Ricardo Matos','Tamires Macedo'];
+
+// ─── TOTAL DE UNIDADES POR CONSULTOR (meta) ───────────────────────────────────
+const TOTAL_UNI = {
+  'Ariadine Oliveira': 46,
+  'Camila Toffoli': 38,
+  'Daiana Ribeiro': 36,
+  'Geraldo Ribeiro': 31,
+  'Jani/Tami': 24,
+  'Karina Morais': 39,
+  'Matheus Vinicius': 38,
+  'Nicolas Zerbinatti': 42,
+  'Ricardo Andrade': 45,
+  'Ricardo Matos': 32,
+  'Tamires Macedo': 15,
+};
+
+const UNI = {
+  'Ariadine Oliveira': ['002 - Campos Elíseos','004 - Suaçuna','009 - Campo Grande','011 - Matão','031 - Lorena','035 - Araraquara','036 - Rio Claro','066 - Pereira Barreto','084 - Ouro Preto','093 - Jardim Paulista','095 - Padre Anchieta','096 - Jamaica','106 - Marechal Tito','135 - Italo Adami','146 - Curuça','159 - Itupeva','165 - Campo Grande 2','172 - Barreiros','173 - Ferraz Centro','178 - Jardim Dona Benta','182 - Campo Limpo','188 - Araraquara Centro','217 - Barra Bonita','230 - Saburo Akamine','233 - Vazame','234 - Embu Centro','243 - Enseada','249 - SJ Rio Preto Centro','259 - Parada 15 de Novembro','272 - Vera Cruz','273 - Mococa','287 - Votuporanga','292 - Gianetti','299 - Pedreira','307 - Caxias RJ','343 - Jardinopolis','345 - Jardim Vilage','348 - Capão Canoa','359 - Vale do Sol','368 - Rio das Pedras','373 - Vila Ipiranga','377 - São Pedro','386 - São Joaquim da Barra','397 - Artur Alvim','398 - Santo Antonio','438 - Guaira'],
+  'Camila Toffoli': ['005 - Taquaral','067 - Miguel Yunes','074 - Osasco Medici','080 - Cidade Das Artes','090 - Vila Imperio','091 - Taboão Da Serra','117 - Osasco Centro','118 - Intercontinental','134 - Yervant','136 - Veloso','141 - Santa Rita','147 - Valo Velho','155 - Inocencio Serafico','164 - Morato Centro','166 - Cotia','170 - Jaguaré','175 - Carlos Lacerda','176 - Pirajussara','186 - Capão Redondo','199 - Maria Beatriz','215 - Capitão Francisco','221 - Silverstone','222 - Washington Luiz','239 - Parque Industrial','244 - Residencial Cocaia','253 - Lapa','266 - Parque Independência','274 - Prestes Maia','280 - Vila Antonio','281 - Saúde','305 - Vila Mascote','308 - Unimart','320 - Anacé','363 - SBC Galvão Bueno','376 - Vila Lurdes','400 - Monte Mor Centro','401 - Vila Dirce','426 - Barueri Centro'],
+  'Daiana Ribeiro': ['037 - Macedo','047 - Cosmópolis','077 - Cocaia Guarulhos','098 - Lago Do Silverio','104 - Diadema Eldorado','105 - Bonsucesso','114 - Tranquilidade','119 - Vila Antonieta','142 - Santa Mena','143 - Poços De Caldas','145 - Ponte Grande','181 - São João','185 - Penha','196 - Boturussu','224 - Silvestre','227 - Montes Claros','251 - Rosamélia','261 - Arena','262 - Pimentas','264 - Boa Esperança','265 - Lençóis Paulista','286 - Belenzinho','321 - Cumbica','335 - Bela Vista','336 - Vila Monteiro','339 - Soberana','340 - Green Village','354 - Dom Nery','356 - Presidente Dutra','360 - São Rafael ZL','366 - Salgado Filho','372 - Nova Andradina','389 - Três Lagoas Centro','390 - Daniel Fonseca','403 - Vila Izabel','404 - Poá Calmon'],
+  'Geraldo Ribeiro': ['003 - Rosolem','007 - Amanda','008 - Vinhedo','015 - Georgina','021 - Nova Europa','034 - Pirassununga','038 - Cambui','045 - Limeira Centro','061 - Ruy Rodrigues','157 - Nova Alvorada','163 - Jardim Jatobá','191 - Jaiara','203 - Setor Oeste','206 - São Marcos','211 - Iracemápolis','219-sapopemba','245 - Itapira','246 - Anália Franco','258 - Araxá','271 - República','275 - Leste Universitário','276 - Vila Formosa','297 - Mega Polo','298 - Maysa','355 - Divisa','362 - Perimetral','370 - Independência APGyn','391 - Oziel','407 - Nova Suiça','424 - Parque Amazônia','Garavelo Park'],
+  'Jani/Tami': ['027 - Amizade','032 - Brás Cubas','040 - Cajamar','060 - Suzano Centro','078 - Grajaú','100 - Diadema Serraria','102 - Novo Horizonte','112 - José Paulino','115 - Marincek','123 - Varzea Centro','137 - Picerno','156 - Roldão Valinhos','162 - Sumaré Centro','205 - Boa Vista','212 - Tenda Matão','289 - Assai João Dias','296 - José Paulino','309 - Paulista Valinhos','310 - Chácara Antonieta','337 - Assai Penha','409 - Analice','416 - Jardim Penha','417 - Good Bom Amanda','427 - Guaxupé'],
+  'Karina Morais': ['012 - Americana 1','014 - Americana 2','016 - Spazio Ouro Verde','017 - Jaguariuna','024 - Santa Barbara','025 - Pague Menos Limeira','041 - Santa Barbara 2','046 - Zanaga','048 - Mogi Guaçu','071 - Chácara Primavera','081 - Glicério','089 - Amparo','092 - Bragança Paulista','097 - São Rafael','108 - Castelo','109 - São Luis','126 - Aviação','127 - Diadema Nogueira','150 - Diadema Centro','151 - Taubaté Centro','167 - Roldão Vila Ema','169 - Roldão Capitão João','192 - Xv De Novembro','197 - Iacanga','209 - São Vito','210 - Moraes Salles','248 - Itoupava Norte','257 - Tupi','278 - Vila São José','303 - Recanto Fortuna','330 - Assai Guarujá','333 - Via Norte','346 - Vila Magini','350 - Redenção','352 - Vila Prudente','399 - Jardim Rosemary','428 - Guilhermina','436 - Itajaí','444 - Vila Industrial'],
+  'Matheus Vinicius': ['052 - Santo Amaro','057 - Maringá','058 - Cidade Nova','064 - Caiçara','070 - São Vicente','129 - Vicente De Carvalho','138 - Nova Mirim','139 - Cianorte','148 - Cubatão Centro','154 - Jaraguá','179 - Canal 1','187 - Londrina Centro','213 - Jaçanã','220 - Colombo','226 - Coliseu','235 - Cambuci','240 - Faria Lima','250 - Tremembé','255 - Guarapuava','260 - Paris','269 - Tucuruvi','270 - São Vicente Centro','279 - Jardim Brasil','304 - Tibúrcio','315 - CT SP Vila Nilo','319 - Boqueirão','322 - Pico','324 - Perus','341 - Belas Artes','379 - Recanto Campo Belo','383 - Perus Recanto','385 - Marialva','387 - Paranavaí','410 - Novo Mundo','411 - São Jorge','412 - Naviraí','430 - Telêmaco Borba','434 - Casa Verde Alta'],
+  'Nicolas Zerbinatti': ['026 - Pague Menos Sumaré','042 - São Caetano Do Sul','065 - Dom Pedro 1','110 - Leme','113 - Sbc Taboão','125 - Sbc Planalto','132 - Mogi Mirim','144 - Mirassol','153 - Vila Virginia','189 - 13 De Maio','195 - Estação','202 - Saudade','204 - Martim Francisco','207 - Francisco Monteiro','216 - Vila Luzita','218 - Carrão','223 - Roldão Mogi Guaçu','238 - Jardim Do Lago','242 - Nordestina','252 - Presidente Vargas','254 - Jaboticabal','256 - Vianas','263 - Pinhal','282 - Marajoara','284 - Sumarezinho','288 - Jardim Zaira','293 - SBC dos Casa','313 - Guararapes','314 - Ressaca','316 - Barcelona','325 - Brasilândia','327 - Peruibe','334 - Pampulha','347 - SBC Castelo Branco','357 - Eng. Goulart','367 - Passos','380 - Alda Salomão','384 - Tucura','388 - Santana','406 - Porto Real','418 - Imperador','419 - Jardim Robru'],
+  'Ricardo Andrade': ['013 - Paulínia','030 - Santa Terezinha','050 - Paulicéia','054 - Atibaia','062 - Nova Odessa','075 - Ipanema Sorocaba','082 - Somenzari','094 - Atibaia Cerejeiras','103 - General','111 - Assis','128 - Piracicaba Centro','133 - Maria Rosa','140 - Jundiaí Vila Agricola','149 - Jj Lacerda','152 - Vista Alegre','158 - Tatui Centro','160 - Vila Rami','174 - Ferroviários','177 - Concordia','190 - Wanel Ville','193 - Duque De Caxias','214 - Botucatu','225 - Castelo Branco','228 - Dom Aguirre','229 - Dois Córregos','231 - Itapetininga','236 - Jussara','237 - Martins Coelho','247 - Altino Arantes','268 - Vila Prado','283 - Julio de Mesquita','295 - Dom Antônio','331 - Pannuzio','332 - Cerquilho','364 - Cruzeiro do Sul','374 - Dois de Dezembro','378 - Nova Marília','392 - Ibiuna','395 - Zanchi','396 - Jequirituba','423 - Ibiti','425 - Prudenshopping','433 - Nature Mall','439 - Birigui Moderno','442 - Bariri'],
+  'Ricardo Matos': ['006 - Indaiatuba','010 - Itu','023 - Salto','028 - Artur Nogueira','043 - Morada Do Sol','059 - Itatiba','068 - Natal','073 - Cajazeiras','099 - Nóbrega','116 - Vila Ramos','120 - Itinga','161 - Arujá','168 - Parque Das Nações','183 - Jardim São Francisco','184 - DIP Guará','194 - Baruel','200 - Vila Proost','201 - Redinha','232 - Ibitinga','291 - Select Brasil 500','301 - Votorantim','306 - Jardim Hubert','311 - Petrolina','317 - Select Recife','323 - Tenda Itapetininga','328 - Boituva','329 - Fortaleza','349 - Araras Centro','353 - Capão Bonito','358 - Taquaritinga','369 - VCA Boa Vista','402 - Santa Paula'],
+  'Tamires Macedo': ['049 - Alto Ipiranga','107 - Sjc Morumbi','124 - Varzea Pacaembu','171 - Sjc Monte Castelo','180 - Boulevard Jacarei','208 - Tenda Pinda','277 - Vila Suissa','290 - SJC Centro','294 - Caraguá','312 - SJC Satélite','338 - SJC América','344 - SJC Ferradura','361 - Caçapava','365 - Pinda Simpatia','375 - Canto do Mar'],
+};
+
+const AVC=[{bg:'#deeaf7',tc:'#1a4f82'},{bg:'#d8f0d0',tc:'#1e5c1a'},{bg:'#e8e4f8',tc:'#3d2e8f'},{bg:'#fdefd0',tc:'#7a4800'},{bg:'#fce4e4',tc:'#7a1a1a'},{bg:'#d0f0ea',tc:'#0e4f40'},{bg:'#fde8f4',tc:'#7a1a5a'},{bg:'#ededeb',tc:'#3a3a36'},{bg:'#fff3cd',tc:'#856404'},{bg:'#f0fdf4',tc:'#166534'},{bg:'#fef3c7',tc:'#92400e'}];
+const KEY='agenda_consultores_v49';
+
+
+
+const UNIT_CITY = {
+  '13 De Maio': 'Ribeirão Preto',
+  '219-sapopemba': 'São Paulo',
+  'Alda Salomão': 'Ribeirão das Neves',
+  'Altino Arantes': 'Sorocaba',
+  'Alto Ipiranga': 'Mogi Das Cruzes',
+  'Amanda': 'Hortolândia',
+  'Americana 1': 'Americana',
+  'Americana 2': 'Americana',
+  'Amizade': 'Sumaré',
+  'Amparo': 'Amparo',
+  'Anacé': 'São Paulo',
+  'Analice': 'Osasco',
+  'Anália Franco': 'São Paulo',
+  'Araraquara': 'Araraquara',
+  'Araraquara Centro': 'Araraquara',
+  'Araras Centro': 'Araras',
+  'Araxá': 'Goiânia',
+  'Arena': 'São Paulo',
+  'Artur Alvim': 'São Paulo',
+  'Artur Nogueira': 'Artur Nogueira',
+  'Arujá': 'Arujá',
+  'Assai Guarujá': 'Guarujá',
+  'Assai João Dias': 'São Paulo',
+  'Assai Penha': 'São Paulo',
+  'Assis': 'Assis',
+  'Atibaia': 'Atibaia',
+  'Atibaia Cerejeiras': 'Atibaia',
+  'Aviação': 'Praia Grande',
+  'Barcelona': 'São Caetano do Sul',
+  'Bariri': 'Bariri',
+  'Barra Bonita': 'Barra Bonita',
+  'Barreiros': 'São José',
+  'Baruel': 'São Paulo',
+  'Barueri Centro': 'Barueri',
+  'Bela Vista': 'Guarulhos',
+  'Belas Artes': 'Itanhaém',
+  'Belenzinho': 'São Paulo',
+  'Birigui Moderno': 'Birigui',
+  'Boa Esperança': 'São Paulo',
+  'Boa Vista': 'São Caetano Do Sul',
+  'Boituva': 'Boituva',
+  'Bonsucesso': 'Guarulhos',
+  'Boqueirão': 'Santos',
+  'Botucatu': 'Botucatu',
+  'Boturussu': 'São Paulo',
+  'Boulevard Jacarei': 'Jacarei',
+  'Bragança Paulista': 'Bragança Paulista',
+  'Brasilândia': 'São Paulo',
+  'Brás Cubas': 'Mogi Das Cruzes',
+  'CT SP Vila Nilo': 'São Paulo',
+  'Caiçara': 'Praia Grande',
+  'Cajamar': 'Cajamar',
+  'Cajazeiras': 'Salvador',
+  'Cambuci': 'São Paulo',
+  'Cambui': 'Campinas',
+  'Campo Grande': 'Campinas',
+  'Campo Grande 2': 'Campinas',
+  'Campo Limpo': 'Campo Limpo Paulista',
+  'Campos Elíseos': 'Campinas',
+  'Canal 1': 'Santos',
+  'Canto do Mar': 'São Sebastião',
+  'Capitão Francisco': 'Barueri',
+  'Capão Bonito': 'Capão Bonito',
+  'Capão Canoa': 'Capão da Canoa',
+  'Capão Redondo': 'São Paulo',
+  'Caraguá': 'Caraguatatuba',
+  'Carlos Lacerda': 'São Paulo',
+  'Carrão': 'São Paulo',
+  'Casa Verde Alta': 'São Paulo',
+  'Castelo': 'Campinas',
+  'Castelo Branco': 'Bauru',
+  'Caxias RJ': 'Duque de Caxias',
+  'Caçapava': 'Caçapava',
+  'Cerquilho': 'Cerquilho',
+  'Chácara Antonieta': 'Limeira',
+  'Chácara Primavera': 'Campinas',
+  'Cianorte': 'Cianorte',
+  'Cidade Das Artes': 'Embu Das Artes',
+  'Cidade Nova': 'Sumaré',
+  'Cocaia Guarulhos': 'Guarulhos',
+  'Coliseu': 'Londrina',
+  'Colombo': 'Maringá',
+  'Concordia': 'Araçatuba',
+  'Cosmópolis': 'Cosmópolis',
+  'Cotia': 'Cotia',
+  'Cruzeiro do Sul': 'Bauru',
+  'Cubatão Centro': 'Cubatão',
+  'Cumbica': 'Guarulhos',
+  'Curuça': 'São Paulo',
+  'DIP Guará': 'Guaratinguetá',
+  'Daniel Fonseca': 'Uberlândia',
+  'Diadema Centro': 'Diadema',
+  'Diadema Eldorado': 'Diadema',
+  'Diadema Nogueira': 'Diadema',
+  'Diadema Serraria': 'Diadema',
+  'Divisa': 'Goiânia',
+  'Dois Córregos': 'Piracicaba',
+  'Dois de Dezembro': 'Araçatuba',
+  'Dom Aguirre': 'Sorocaba',
+  'Dom Antônio': 'Assis',
+  'Dom Nery': 'São Paulo',
+  'Dom Pedro 1': 'Santo André',
+  'Duque De Caxias': 'Bauru',
+  'Embu Centro': 'Embu Das Artes',
+  'Eng. Goulart': 'São Paulo',
+  'Enseada': 'Guarujá',
+  'Estação': 'Franca',
+  'Faria Lima': 'Londrina',
+  'Ferraz Centro': 'Ferraz De Vasconcelos',
+  'Ferroviários': 'Jundiaí',
+  'Fortaleza': 'Fortaleza',
+  'Francisco Monteiro': 'Ribeirão Pires',
+  'Garavelo Park': 'Aparecida de Goiânia',
+  'General': 'Sorocaba',
+  'Georgina': 'Campinas',
+  'Gianetti': 'Ferraz de Vasconcelos',
+  'Glicério': 'Campinas',
+  'Good Bom Amanda': 'Monte Mor',
+  'Grajaú': 'São Paulo',
+  'Green Village': 'Nova Odessa',
+  'Guaira': 'Guaíra',
+  'Guarapuava': 'Guarapuava',
+  'Guararapes': 'Guararapes',
+  'Guaxupé': 'Guaxupé',
+  'Guilhermina': 'Praia Grande',
+  'Iacanga': 'Americana',
+  'Ibiti': 'Sorocaba',
+  'Ibitinga': 'Ibitinga',
+  'Ibiuna': 'Ibiúna',
+  'Imperador': 'São Paulo',
+  'Indaiatuba': 'Indaiatuba',
+  'Independência APGyn': 'Aparecida de Goiânia',
+  'Inocencio Serafico': 'Carapicuíba',
+  'Intercontinental': 'Taboão Da Serra',
+  'Ipanema Sorocaba': 'Sorocaba',
+  'Iracemápolis': 'Iracemápolis',
+  'Itajaí': 'Itajaí',
+  'Italo Adami': 'Itaquaquecetuba',
+  'Itapetininga': 'Itapetininga',
+  'Itapira': 'Itapira',
+  'Itatiba': 'Itatiba',
+  'Itinga': 'Lauro De Freitas',
+  'Itoupava Norte': 'Blumenau',
+  'Itu': 'Itu',
+  'Itupeva': 'Itupeva',
+  'Jaboticabal': 'Jaboticabal',
+  'Jaguariuna': 'Jaguariuna',
+  'Jaguaré': 'São Paulo',
+  'Jaiara': 'Anápolis',
+  'Jamaica': 'Santo André',
+  'Jaraguá': 'São Paulo',
+  'Jardim Brasil': 'São Paulo',
+  'Jardim Do Lago': 'Limeira',
+  'Jardim Dona Benta': 'Suzano',
+  'Jardim Hubert': 'Indaiatuba',
+  'Jardim Jatobá': 'Hortolândia',
+  'Jardim Paulista': 'Monte Mor',
+  'Jardim Penha': 'Vitória',
+  'Jardim Robru': 'São Paulo',
+  'Jardim Rosemary': 'Itapevi',
+  'Jardim São Francisco': 'Caieiras',
+  'Jardim Vilage': 'Rio Claro',
+  'Jardim Zaira': 'Mauá',
+  'Jardinopolis': 'Jardinópolis',
+  'Jaçanã': 'São Paulo',
+  'Jequirituba': 'São Paulo',
+  'Jj Lacerda': 'Sorocaba',
+  'José Paulino': 'Paulínia',
+  'Julio de Mesquita': 'Sorocaba',
+  'Jundiaí Vila Agricola': 'Jundiaí',
+  'Jussara': 'Araçatuba',
+  'Lago Do Silverio': 'Jaú',
+  'Lapa': 'São Paulo',
+  'Leme': 'Leme',
+  'Lençóis Paulista': 'Lençóis Paulista',
+  'Leste Universitário': 'Goiânia',
+  'Limeira Centro': 'Limeira',
+  'Londrina Centro': 'Londrina',
+  'Lorena': 'Lorena',
+  'Macedo': 'Guarulhos',
+  'Marajoara': 'Santo André',
+  'Marechal Tito': 'São Paulo',
+  'Maria Beatriz': 'Carapicuíba',
+  'Maria Rosa': 'Taboão Da Serra',
+  'Marialva': 'Marialva',
+  'Marincek': 'Ribeirão Preto',
+  'Maringá': 'Maringá',
+  'Martim Francisco': 'Santo André',
+  'Martins Coelho': 'Marília',
+  'Matão': 'Sumaré',
+  'Maysa': 'Trindade',
+  'Mega Polo': 'Goiânia',
+  'Miguel Yunes': 'São Paulo',
+  'Mirassol': 'Mirassol',
+  'Mococa': 'Mococa',
+  'Mogi Guaçu': 'Mogi Guaçu',
+  'Mogi Mirim': 'Mogi Mirim',
+  'Monte Mor Centro': 'Monte Mor',
+  'Montes Claros': 'Montes Claros',
+  'Morada Do Sol': 'Indaiatuba',
+  'Moraes Salles': 'Campinas',
+  'Morato Centro': 'Francisco Morato',
+  'Natal': 'Natal',
+  'Nature Mall': 'São José do Rio Preto',
+  'Naviraí': 'Naviraí',
+  'Nordestina': 'São Paulo',
+  'Nova Alvorada': 'Hortolândia',
+  'Nova Andradina': 'Nova Andradina',
+  'Nova Europa': 'Campinas',
+  'Nova Marília': 'Marília',
+  'Nova Mirim': 'Praia Grande',
+  'Nova Odessa': 'Nova Odessa',
+  'Nova Suiça': 'Goiânia',
+  'Novo Horizonte': 'São Paulo',
+  'Novo Mundo': 'Curitiba',
+  'Nóbrega': 'Campinas',
+  'Osasco Centro': 'Osasco',
+  'Osasco Medici': 'Osasco',
+  'Ouro Preto': 'Campinas',
+  'Oziel': 'Campinas',
+  'Padre Anchieta': 'Campinas',
+  'Pague Menos Limeira': 'Limeira',
+  'Pague Menos Sumaré': 'Sumaré',
+  'Pampulha': 'Belo Horizonte',
+  'Pannuzio': 'Sorocaba',
+  'Parada 15 de Novembro': 'São Paulo',
+  'Paranavaí': 'Paranavaí',
+  'Paris': 'Praia Grande',
+  'Parque Amazônia': 'Goiânia',
+  'Parque Das Nações': 'Sumaré',
+  'Parque Independência': 'São Paulo',
+  'Parque Industrial': 'Campinas',
+  'Passos': 'Passos',
+  'Paulicéia': 'Piracicaba',
+  'Paulista Valinhos': 'Valinhos',
+  'Paulínia': 'Paulínia',
+  'Pedreira': 'Pedreira',
+  'Penha': 'São Paulo',
+  'Pereira Barreto': 'Santo André',
+  'Perimetral': 'Goiânia',
+  'Peruibe': 'Peruíbe',
+  'Perus': 'São Paulo',
+  'Perus Recanto': 'São Paulo',
+  'Petrolina': 'Petrolina',
+  'Picerno': 'Sumaré',
+  'Pico': 'São Paulo',
+  'Pimentas': 'Guarulhos',
+  'Pinda Simpatia': 'Pindamonhangaba',
+  'Pinhal': 'Espirito Santo do Pinhal',
+  'Piracicaba Centro': 'Piracicaba',
+  'Pirajussara': 'Taboão Da Serra',
+  'Pirassununga': 'Pirassununga',
+  'Ponte Grande': 'Guarulhos',
+  'Porto Real': 'Limeira',
+  'Poá Calmon': 'Poá',
+  'Poços De Caldas': 'Poços De Caldas',
+  'Presidente Dutra': 'Guarulhos',
+  'Presidente Vargas': 'Franca',
+  'Prestes Maia': 'Osasco',
+  'Prudenshopping': 'Presidente Prudente',
+  'Recanto Campo Belo': 'São Paulo',
+  'Recanto Fortuna': 'Campinas',
+  'Redenção': 'Taubaté',
+  'Redinha': 'Natal',
+  'República': 'São Paulo',
+  'Residencial Cocaia': 'São Paulo',
+  'Ressaca': 'Contagem',
+  'Rio Claro': 'Rio Claro',
+  'Rio das Pedras': 'Rio de Janeiro',
+  'Roldão Capitão João': 'Mauá',
+  'Roldão Mogi Guaçu': 'Mogi Guaçu',
+  'Roldão Valinhos': 'Valinhos',
+  'Roldão Vila Ema': 'São Paulo',
+  'Rosamélia': 'Cosmópolis',
+  'Rosolem': 'Hortolândia',
+  'Ruy Rodrigues': 'Campinas',
+  'SBC Castelo Branco': 'São Bernardo do Campo',
+  'SBC Galvão Bueno': 'São Bernardo do Campo',
+  'SBC dos Casa': 'São Bernardo do Campo',
+  'SJ Rio Preto Centro': 'São José do Rio Preto',
+  'SJC América': 'São José Dos Campos',
+  'SJC Centro': 'São José Dos Campos',
+  'SJC Ferradura': 'São José Dos Campos',
+  'SJC Satélite': 'São José dos Campos',
+  'Saburo Akamine': 'Rio Claro',
+  'Salgado Filho': 'Guarulhos',
+  'Salto': 'Salto',
+  'Santa Barbara': 'Santa Bárbara D\'Oeste',
+  'Santa Barbara 2': 'Santa Bárbara D\'Oeste',
+  'Santa Mena': 'Guarulhos',
+  'Santa Paula': 'São José do Rio Preto',
+  'Santa Rita': 'Itapevi',
+  'Santa Terezinha': 'Piracicaba',
+  'Santana': 'São Paulo',
+  'Santo Amaro': 'São Paulo',
+  'Santo Antonio': 'Divinópolis',
+  'Saudade': 'Ribeirão Preto',
+  'Saúde': 'São Paulo',
+  'Sbc Planalto': 'São Bernardo Do Campo',
+  'Sbc Taboão': 'São Bernardo Do Campo',
+  'Select Brasil 500': 'Paulínia',
+  'Select Recife': 'Recife',
+  'Setor Oeste': 'Goiânia',
+  'Silverstone': 'Jandira',
+  'Silvestre': 'Guarulhos',
+  'Sjc Monte Castelo': 'São José Dos Campos',
+  'Sjc Morumbi': 'São José Dos Campos',
+  'Soberana': 'Guarulhos',
+  'Somenzari': 'Marília',
+  'Spazio Ouro Verde': 'Campinas',
+  'Suaçuna': 'Campinas',
+  'Sumarezinho': 'Ribeirão Preto',
+  'Sumaré Centro': 'Sumaré',
+  'Suzano Centro': 'Suzano',
+  'São Caetano Do Sul': 'São Caetano Do Sul',
+  'São Joaquim da Barra': 'São Joaquim da Barra',
+  'São Jorge': 'Hortolândia',
+  'São João': 'Guarulhos',
+  'São Luis': 'Taubaté',
+  'São Marcos': 'Valinhos',
+  'São Pedro': 'São Pedro',
+  'São Rafael': 'São Paulo',
+  'São Rafael ZL': 'São Paulo',
+  'São Vicente': 'São Vicente',
+  'São Vicente Centro': 'São Vicente',
+  'São Vito': 'Americana',
+  'Taboão Da Serra': 'Taboão Da Serra',
+  'Taquaral': 'Campinas',
+  'Taquaritinga': 'Taquaritinga',
+  'Tatui Centro': 'Tatuí',
+  'Taubaté Centro': 'Taubaté',
+  'Telêmaco Borba': 'Telêmaco Borba',
+  'Tenda Itapetininga': 'Itapetininga',
+  'Tenda Matão': 'Matão',
+  'Tenda Pinda': 'Pindamonhangaba',
+  'Tibúrcio': 'São Paulo',
+  'Tranquilidade': 'Guarulhos',
+  'Tremembé': 'São Paulo',
+  'Três Lagoas Centro': 'Três Lagoas',
+  'Tucura': 'Mogi Mirim',
+  'Tucuruvi': 'São Paulo',
+  'Tupi': 'Praia Grande',
+  'Unimart': 'Campinas',
+  'VCA Boa Vista': 'Vitória da Conquista',
+  'Vale do Sol': 'Araraquara',
+  'Valo Velho': 'São Paulo',
+  'Varzea Centro': 'Várzea Paulista',
+  'Varzea Pacaembu': 'Várzea Paulista',
+  'Vazame': 'Embu Das Artes',
+  'Veloso': 'Osasco',
+  'Vera Cruz': 'São Paulo',
+  'Via Norte': 'Campinas',
+  'Vianas': 'São Bernardo Do Campo',
+  'Vicente De Carvalho': 'Guarujá',
+  'Vila Antonieta': 'São Paulo',
+  'Vila Antonio': 'São Paulo',
+  'Vila Dirce': 'Carapicuíba',
+  'Vila Formosa': 'São Paulo',
+  'Vila Imperio': 'São Paulo',
+  'Vila Industrial': 'Campinas',
+  'Vila Ipiranga': 'Porto Alegre',
+  'Vila Izabel': 'Guarulhos',
+  'Vila Lurdes': 'Carapicuíba',
+  'Vila Luzita': 'Santo André',
+  'Vila Magini': 'Mauá',
+  'Vila Mascote': 'São Paulo',
+  'Vila Monteiro': 'Poá',
+  'Vila Prado': 'São Carlos',
+  'Vila Proost': 'Campinas',
+  'Vila Prudente': 'São Paulo',
+  'Vila Rami': 'Jundiaí',
+  'Vila Ramos': 'Franco Da Rocha',
+  'Vila Suissa': 'Mogi Das Cruzes',
+  'Vila São José': 'Taubaté',
+  'Vila Virginia': 'Ribeirão Preto',
+  'Vinhedo': 'Vinhedo',
+  'Vista Alegre': 'Bauru',
+  'Votorantim': 'Votorantim',
+  'Votuporanga': 'Votuporanga',
+  'Wanel Ville': 'Sorocaba',
+  'Washington Luiz': 'Campinas',
+  'Xv De Novembro': 'Taubaté',
+  'Yervant': 'São Paulo',
+  'Zanaga': 'Americana',
+  'Zanchi': 'Presidente Prudente',
+};
+
+function getCity(unidade) {
+  if (!unidade) return '';
+  const p = unidade.indexOf(' - ');
+  const short = p > -1 ? unidade.slice(p + 3).trim() : unidade;
+  return UNIT_CITY[short] || '';
+}
+const avc=c=>{const i=CONS.indexOf(c);return AVC[Math.max(0,i)%AVC.length];};
+const now=()=>new Date();
+const tds=()=>now().toISOString().slice(0,10);
+const txCol=v=>v>=70?'#1e5c1a':v>=40?'#7a4800':'#c0392b';
+
+
+// ─── GOOGLE SHEETS CONFIG ─────────────────────────────────────────────────────
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxqwLUEJTo1J4Kw4O3O420gVIa7kZ4JrW8-FVlEnoDqxEt4173BiVUvKNwPMuG3nYg/exec';
+let syncando = false;
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let eventos = [], nextId = 1;
+let gTab='gantt', gY, gM, gFc='todos', gFt='todos', gModal=false, gEvt=null, gZoom=100;
+let cModal=false, cEvt=null, cZoom=100;
+let consAtivo=null;
+let view='gestor';
+
+// ─── STORAGE ─────────────────────────────────────────────────────────────────
+function save(){localStorage.setItem(KEY,JSON.stringify({eventos,nextId}));}
+function load(){
+  try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);eventos=d.eventos||[];nextId=d.nextId||1;return;}}catch(e){}
+  // dados pré-carregados da planilha importada
+  eventos=[{"id": 1, "consultor": "Ariadine Oliveira", "unidade": "002 - Campos Elíseos", "tipo": "auditoria", "inicio": "2026-03-20", "fim": "2026-03-20", "status": "realizado"}, {"id": 2, "consultor": "Ariadine Oliveira", "unidade": "004 - Suaçuna", "tipo": "auditoria", "inicio": "2026-03-10", "fim": "2026-03-10", "status": "realizado"}, {"id": 3, "consultor": "Ariadine Oliveira", "unidade": "009 - Campo Grande", "tipo": "auditoria", "inicio": "2026-03-06", "fim": "2026-03-06", "status": "realizado"}, {"id": 4, "consultor": "Ariadine Oliveira", "unidade": "011 - Matão", "tipo": "auditoria", "inicio": "2026-03-17", "fim": "2026-03-17", "status": "realizado"}, {"id": 5, "consultor": "Ariadine Oliveira", "unidade": "084 - Ouro Preto", "tipo": "auditoria", "inicio": "2026-03-10", "fim": "2026-03-10", "status": "realizado"}, {"id": 6, "consultor": "Ariadine Oliveira", "unidade": "299 - Pedreira", "tipo": "auditoria", "inicio": "2026-03-03", "fim": "2026-03-03", "status": "realizado"}, {"id": 7, "consultor": "Camila Toffoli", "unidade": "046 - Zanaga", "tipo": "auditoria", "inicio": "2026-02-06", "fim": "2026-02-06", "status": "realizado"}, {"id": 8, "consultor": "Camila Toffoli", "unidade": "080 - Cidade Das Artes", "tipo": "auditoria", "inicio": "2026-03-26", "fim": "2026-03-26", "status": "realizado"}, {"id": 9, "consultor": "Camila Toffoli", "unidade": "091 - Taboão Da Serra", "tipo": "auditoria", "inicio": "2026-03-24", "fim": "2026-03-24", "status": "realizado"}, {"id": 10, "consultor": "Camila Toffoli", "unidade": "141 - Santa Rita", "tipo": "auditoria", "inicio": "2026-03-25", "fim": "2026-03-25", "status": "realizado"}, {"id": 11, "consultor": "Camila Toffoli", "unidade": "147 - Valo Velho", "tipo": "auditoria", "inicio": "2026-03-26", "fim": "2026-03-26", "status": "realizado"}, {"id": 12, "consultor": "Camila Toffoli", "unidade": "155 - Inocencio Serafico", "tipo": "auditoria", "inicio": "2026-03-04", "fim": "2026-03-04", "status": "realizado"}, {"id": 13, "consultor": "Camila Toffoli", "unidade": "164 - Morato Centro", "tipo": "auditoria", "inicio": "2026-02-11", "fim": "2026-02-11", "status": "realizado"}, {"id": 14, "consultor": "Camila Toffoli", "unidade": "166 - Cotia", "tipo": "auditoria", "inicio": "2026-03-25", "fim": "2026-03-25", "status": "realizado"}, {"id": 15, "consultor": "Camila Toffoli", "unidade": "175 - Carlos Lacerda", "tipo": "auditoria", "inicio": "2026-03-24", "fim": "2026-03-24", "status": "realizado"}, {"id": 16, "consultor": "Camila Toffoli", "unidade": "176 - Pirajussara", "tipo": "auditoria", "inicio": "2026-02-19", "fim": "2026-02-19", "status": "realizado"}, {"id": 17, "consultor": "Camila Toffoli", "unidade": "186 - Capão Redondo", "tipo": "auditoria", "inicio": "2026-04-09", "fim": "2026-04-09", "status": "realizado"}, {"id": 18, "consultor": "Camila Toffoli", "unidade": "221 - Silverstone", "tipo": "auditoria", "inicio": "2026-03-04", "fim": "2026-03-04", "status": "realizado"}, {"id": 19, "consultor": "Camila Toffoli", "unidade": "253 - Lapa", "tipo": "auditoria", "inicio": "2026-02-20", "fim": "2026-02-20", "status": "realizado"}, {"id": 20, "consultor": "Camila Toffoli", "unidade": "308 - Unimart", "tipo": "auditoria", "inicio": "2026-02-27", "fim": "2026-02-27", "status": "realizado"}, {"id": 21, "consultor": "Daiana Ribeiro", "unidade": "037 - Macedo", "tipo": "auditoria", "inicio": "2026-03-17", "fim": "2026-03-17", "status": "realizado"}, {"id": 22, "consultor": "Daiana Ribeiro", "unidade": "105 - Bonsucesso", "tipo": "auditoria", "inicio": "2026-03-18", "fim": "2026-03-18", "status": "realizado"}, {"id": 23, "consultor": "Daiana Ribeiro", "unidade": "142 - Santa Mena", "tipo": "auditoria", "inicio": "2026-03-24", "fim": "2026-03-24", "status": "realizado"}, {"id": 24, "consultor": "Daiana Ribeiro", "unidade": "145 - Ponte Grande", "tipo": "auditoria", "inicio": "2026-03-26", "fim": "2026-03-26", "status": "realizado"}, {"id": 25, "consultor": "Daiana Ribeiro", "unidade": "181 - São João", "tipo": "auditoria", "inicio": "2026-03-17", "fim": "2026-03-17", "status": "realizado"}, {"id": 26, "consultor": "Daiana Ribeiro", "unidade": "143 - Poços De Caldas", "tipo": "auditoria", "inicio": "2026-03-20", "fim": "2026-03-20", "status": "realizado"}, {"id": 27, "consultor": "Daiana Ribeiro", "unidade": "262 - Pimentas", "tipo": "auditoria", "inicio": "2026-03-18", "fim": "2026-03-18", "status": "realizado"}, {"id": 28, "consultor": "Daiana Ribeiro", "unidade": "321 - Cumbica", "tipo": "auditoria", "inicio": "2026-04-09", "fim": "2026-04-09", "status": "realizado"}, {"id": 29, "consultor": "Daiana Ribeiro", "unidade": "335 - Bela Vista", "tipo": "auditoria", "inicio": "2026-04-09", "fim": "2026-04-09", "status": "realizado"}, {"id": 30, "consultor": "Daiana Ribeiro", "unidade": "336 - Vila Monteiro", "tipo": "auditoria", "inicio": "2026-03-25", "fim": "2026-03-25", "status": "realizado"}, {"id": 31, "consultor": "Nicolas Zerbinatti", "unidade": "110 - Leme", "tipo": "auditoria", "inicio": "2026-04-14", "fim": "2026-04-14", "status": "realizado"}, {"id": 32, "consultor": "Nicolas Zerbinatti", "unidade": "153 - Vila Virginia", "tipo": "auditoria", "inicio": "2026-03-25", "fim": "2026-03-25", "status": "realizado"}, {"id": 33, "consultor": "Nicolas Zerbinatti", "unidade": "189 - 13 De Maio", "tipo": "auditoria", "inicio": "2026-03-26", "fim": "2026-03-26", "status": "realizado"}, {"id": 34, "consultor": "Nicolas Zerbinatti", "unidade": "195 - Estação", "tipo": "auditoria", "inicio": "2026-04-10", "fim": "2026-04-10", "status": "realizado"}, {"id": 35, "consultor": "Nicolas Zerbinatti", "unidade": "202 - Saudade", "tipo": "auditoria", "inicio": "2026-03-24", "fim": "2026-03-24", "status": "realizado"}, {"id": 36, "consultor": "Nicolas Zerbinatti", "unidade": "238 - Jardim Do Lago", "tipo": "auditoria", "inicio": "2026-03-12", "fim": "2026-03-12", "status": "realizado"}, {"id": 37, "consultor": "Nicolas Zerbinatti", "unidade": "252 - Presidente Vargas", "tipo": "auditoria", "inicio": "2026-04-09", "fim": "2026-04-09", "status": "realizado"}, {"id": 38, "consultor": "Nicolas Zerbinatti", "unidade": "263 - Pinhal", "tipo": "auditoria", "inicio": "2026-02-20", "fim": "2026-02-20", "status": "realizado"}, {"id": 39, "consultor": "Nicolas Zerbinatti", "unidade": "284 - Sumarezinho", "tipo": "auditoria", "inicio": "2026-03-27", "fim": "2026-03-27", "status": "realizado"}, {"id": 40, "consultor": "Nicolas Zerbinatti", "unidade": "288 - Jardim Zaira", "tipo": "auditoria", "inicio": "2026-01-23", "fim": "2026-01-23", "status": "realizado"}, {"id": 41, "consultor": "Nicolas Zerbinatti", "unidade": "314 - Ressaca", "tipo": "auditoria", "inicio": "2026-02-11", "fim": "2026-02-11", "status": "realizado"}, {"id": 42, "consultor": "Nicolas Zerbinatti", "unidade": "325 - Brasilândia", "tipo": "auditoria", "inicio": "2026-02-26", "fim": "2026-02-26", "status": "realizado"}, {"id": 43, "consultor": "Nicolas Zerbinatti", "unidade": "334 - Pampulha", "tipo": "auditoria", "inicio": "2026-02-13", "fim": "2026-02-13", "status": "realizado"}, {"id": 44, "consultor": "Nicolas Zerbinatti", "unidade": "380 - Alda Salomão", "tipo": "auditoria", "inicio": "2026-02-12", "fim": "2026-02-12", "status": "realizado"}, {"id": 45, "consultor": "Nicolas Zerbinatti", "unidade": "388 - Santana", "tipo": "auditoria", "inicio": "2026-02-27", "fim": "2026-02-27", "status": "realizado"}, {"id": 46, "consultor": "Tamires Macedo", "unidade": "124 - Varzea Pacaembu", "tipo": "auditoria", "inicio": "2026-02-11", "fim": "2026-02-11", "status": "realizado"}, {"id": 47, "consultor": "Tamires Macedo", "unidade": "208 - Tenda Pinda", "tipo": "auditoria", "inicio": "2026-03-04", "fim": "2026-03-04", "status": "realizado"}, {"id": 48, "consultor": "Tamires Macedo", "unidade": "365 - Pinda Simpatia", "tipo": "auditoria", "inicio": "2026-03-05", "fim": "2026-03-05", "status": "realizado"}, {"id": 49, "consultor": "Tamires Macedo", "unidade": "107 - Sjc Morumbi", "tipo": "auditoria", "inicio": "2026-04-07", "fim": "2026-04-07", "status": "realizado"}, {"id": 50, "consultor": "Tamires Macedo", "unidade": "290 - SJC Centro", "tipo": "auditoria", "inicio": "2026-04-14", "fim": "2026-04-14", "status": "realizado"}, {"id": 51, "consultor": "Tamires Macedo", "unidade": "171 - Sjc Monte Castelo", "tipo": "auditoria", "inicio": "2026-04-08", "fim": "2026-04-08", "status": "realizado"}, {"id": 52, "consultor": "Tamires Macedo", "unidade": "180 - Boulevard Jacarei", "tipo": "auditoria", "inicio": "2026-04-13", "fim": "2026-04-13", "status": "realizado"}, {"id": 53, "consultor": "Tamires Macedo", "unidade": "312 - SJC Satélite", "tipo": "auditoria", "inicio": "2026-04-15", "fim": "2026-04-15", "status": "realizado"}, {"id": 54, "consultor": "Tamires Macedo", "unidade": "338 - SJC América", "tipo": "auditoria", "inicio": "2026-04-16", "fim": "2026-04-16", "status": "realizado"}, {"id": 55, "consultor": "Tamires Macedo", "unidade": "344 - SJC Ferradura", "tipo": "auditoria", "inicio": "2026-04-09", "fim": "2026-04-09", "status": "realizado"}, {"id": 56, "consultor": "Ingrid Gomes", "unidade": "052 - Santo Amaro", "tipo": "auditoria", "inicio": "2026-02-19", "fim": "2026-02-19", "status": "realizado"}, {"id": 57, "consultor": "Ingrid Gomes", "unidade": "269 - Tucuruvi", "tipo": "auditoria", "inicio": "2026-02-02", "fim": "2026-02-02", "status": "realizado"}, {"id": 58, "consultor": "Ingrid Gomes", "unidade": "250 - Tremembé", "tipo": "auditoria", "inicio": "2026-02-03", "fim": "2026-02-03", "status": "realizado"}, {"id": 59, "consultor": "Ingrid Gomes", "unidade": "235 - Cambuci", "tipo": "auditoria", "inicio": "2026-02-04", "fim": "2026-02-04", "status": "realizado"}, {"id": 60, "consultor": "Ingrid Gomes", "unidade": "304 - Tibúrcio", "tipo": "auditoria", "inicio": "2026-02-04", "fim": "2026-02-04", "status": "realizado"}, {"id": 61, "consultor": "Ingrid Gomes", "unidade": "154 - Jaraguá", "tipo": "auditoria", "inicio": "2026-02-05", "fim": "2026-02-05", "status": "realizado"}, {"id": 62, "consultor": "Ingrid Gomes", "unidade": "279 - Jardim Brasil", "tipo": "auditoria", "inicio": "2026-02-06", "fim": "2026-02-06", "status": "realizado"}, {"id": 63, "consultor": "Ingrid Gomes", "unidade": "148 - Cubatão Centro", "tipo": "auditoria", "inicio": "2026-03-09", "fim": "2026-03-09", "status": "realizado"}, {"id": 64, "consultor": "Ingrid Gomes", "unidade": "322 - Pico", "tipo": "auditoria", "inicio": "2026-02-09", "fim": "2026-02-09", "status": "realizado"}, {"id": 65, "consultor": "Ingrid Gomes", "unidade": "324 - Perus", "tipo": "auditoria", "inicio": "2026-02-10", "fim": "2026-02-10", "status": "realizado"}, {"id": 66, "consultor": "Ingrid Gomes", "unidade": "383 - Perus Recanto", "tipo": "auditoria", "inicio": "2026-02-11", "fim": "2026-02-11", "status": "realizado"}, {"id": 67, "consultor": "Ingrid Gomes", "unidade": "213 - Jaçanã", "tipo": "auditoria", "inicio": "2026-02-12", "fim": "2026-02-12", "status": "realizado"}, {"id": 68, "consultor": "Ingrid Gomes", "unidade": "315 - CT SP Vila Nilo", "tipo": "auditoria", "inicio": "2026-02-13", "fim": "2026-02-13", "status": "realizado"}, {"id": 69, "consultor": "Ingrid Gomes", "unidade": "270 - São Vicente Centro", "tipo": "auditoria", "inicio": "2026-03-10", "fim": "2026-03-10", "status": "realizado"}, {"id": 70, "consultor": "Ingrid Gomes", "unidade": "070 - São Vicente", "tipo": "auditoria", "inicio": "2026-03-11", "fim": "2026-03-11", "status": "realizado"}, {"id": 71, "consultor": "Ingrid Gomes", "unidade": "179 - Canal 1", "tipo": "auditoria", "inicio": "2026-03-12", "fim": "2026-03-12", "status": "realizado"}, {"id": 72, "consultor": "Ingrid Gomes", "unidade": "319 - Boqueirão", "tipo": "auditoria", "inicio": "2026-03-12", "fim": "2026-03-12", "status": "realizado"}, {"id": 73, "consultor": "Ingrid Gomes", "unidade": "129 - Vicente De Carvalho", "tipo": "auditoria", "inicio": "2026-03-13", "fim": "2026-03-13", "status": "realizado"}, {"id": 74, "consultor": "Ingrid Gomes", "unidade": "260 - Paris", "tipo": "auditoria", "inicio": "2026-03-23", "fim": "2026-03-23", "status": "realizado"}, {"id": 75, "consultor": "Ingrid Gomes", "unidade": "138 - Nova Mirim", "tipo": "auditoria", "inicio": "2026-03-24", "fim": "2026-03-24", "status": "realizado"}, {"id": 76, "consultor": "Ingrid Gomes", "unidade": "341 - Belas Artes", "tipo": "auditoria", "inicio": "2026-03-26", "fim": "2026-03-26", "status": "realizado"}, {"id": 77, "consultor": "Ingrid Gomes", "unidade": "327 - Peruibe", "tipo": "auditoria", "inicio": "2026-03-27", "fim": "2026-03-27", "status": "realizado"}, {"id": 78, "consultor": "Ingrid Gomes", "unidade": "187 - Londrina Centro", "tipo": "auditoria", "inicio": "2026-04-07", "fim": "2026-04-07", "status": "realizado"}, {"id": 79, "consultor": "Ingrid Gomes", "unidade": "139 - Cianorte", "tipo": "auditoria", "inicio": "2026-04-27", "fim": "2026-04-27", "status": "realizado"}, {"id": 80, "consultor": "Ingrid Gomes", "unidade": "387 - Paranavaí", "tipo": "auditoria", "inicio": "2026-04-09", "fim": "2026-04-09", "status": "realizado"}, {"id": 81, "consultor": "Ingrid Gomes", "unidade": "240 - Faria Lima", "tipo": "auditoria", "inicio": "2026-04-09", "fim": "2026-04-09", "status": "realizado"}, {"id": 82, "consultor": "Ingrid Gomes", "unidade": "385 - Marialva", "tipo": "auditoria", "inicio": "2026-04-06", "fim": "2026-04-06", "status": "realizado"}, {"id": 83, "consultor": "Ingrid Gomes", "unidade": "226 - Coliseu", "tipo": "auditoria", "inicio": "2026-04-08", "fim": "2026-04-08", "status": "realizado"}, {"id": 84, "consultor": "Ricardo Matos", "unidade": "010 - Itu", "tipo": "auditoria", "inicio": "2026-05-15", "fim": "2026-05-15", "status": "realizado"}, {"id": 85, "consultor": "Ricardo Matos", "unidade": "014 - Americana 2", "tipo": "auditoria", "inicio": "2026-02-06", "fim": "2026-02-06", "status": "realizado"}, {"id": 86, "consultor": "Ricardo Matos", "unidade": "023 - Salto", "tipo": "auditoria", "inicio": "2026-05-14", "fim": "2026-05-14", "status": "realizado"}, {"id": 87, "consultor": "Ricardo Matos", "unidade": "059 - Itatiba", "tipo": "auditoria", "inicio": "2026-03-04", "fim": "2026-03-04", "status": "realizado"}, {"id": 88, "consultor": "Ricardo Matos", "unidade": "068 - Natal", "tipo": "auditoria", "inicio": "2026-03-10", "fim": "2026-03-10", "status": "realizado"}, {"id": 89, "consultor": "Ricardo Matos", "unidade": "073 - Cajazeiras", "tipo": "auditoria", "inicio": "2026-03-24", "fim": "2026-03-25", "status": "realizado"}, {"id": 90, "consultor": "Ricardo Matos", "unidade": "116 - Vila Ramos", "tipo": "auditoria", "inicio": "2026-02-19", "fim": "2026-02-19", "status": "realizado"}, {"id": 91, "consultor": "Ricardo Matos", "unidade": "120 - Itinga", "tipo": "auditoria", "inicio": "2026-03-26", "fim": "2026-03-27", "status": "realizado"}, {"id": 92, "consultor": "Ricardo Matos", "unidade": "161 - Arujá", "tipo": "auditoria", "inicio": "2026-02-13", "fim": "2026-02-13", "status": "realizado"}, {"id": 93, "consultor": "Ricardo Matos", "unidade": "183 - Jardim São Francisco", "tipo": "auditoria", "inicio": "2026-02-20", "fim": "2026-02-20", "status": "realizado"}, {"id": 94, "consultor": "Ricardo Matos", "unidade": "194 - Baruel", "tipo": "auditoria", "inicio": "2026-03-03", "fim": "2026-03-03", "status": "realizado"}, {"id": 95, "consultor": "Ricardo Matos", "unidade": "200 - Vila Proost", "tipo": "auditoria", "inicio": "2026-04-17", "fim": "2026-04-17", "status": "realizado"}, {"id": 96, "consultor": "Ricardo Matos", "unidade": "201 - Redinha", "tipo": "auditoria", "inicio": "2026-03-11", "fim": "2026-03-11", "status": "realizado"}, {"id": 97, "consultor": "Ricardo Matos", "unidade": "232 - Ibitinga", "tipo": "auditoria", "inicio": "2026-01-28", "fim": "2026-01-28", "status": "realizado"}, {"id": 98, "consultor": "Ricardo Matos", "unidade": "301 - Votorantim", "tipo": "auditoria", "inicio": "2026-04-16", "fim": "2026-04-16", "status": "realizado"}, {"id": 99, "consultor": "Ricardo Matos", "unidade": "306 - Jardim Hubert", "tipo": "auditoria", "inicio": "2026-02-02", "fim": "2026-02-02", "status": "realizado"}, {"id": 100, "consultor": "Ricardo Matos", "unidade": "311 - Petrolina", "tipo": "auditoria", "inicio": "2026-03-16", "fim": "2026-03-16", "status": "realizado"}, {"id": 101, "consultor": "Ricardo Matos", "unidade": "317 - Select Recife", "tipo": "auditoria", "inicio": "2026-03-13", "fim": "2026-03-13", "status": "realizado"}, {"id": 102, "consultor": "Ricardo Matos", "unidade": "323 - Tenda Itapetininga", "tipo": "auditoria", "inicio": "2026-02-11", "fim": "2026-02-11", "status": "realizado"}, {"id": 103, "consultor": "Ricardo Matos", "unidade": "328 - Boituva", "tipo": "auditoria", "inicio": "2026-01-30", "fim": "2026-01-30", "status": "realizado"}, {"id": 104, "consultor": "Ricardo Matos", "unidade": "329 - Fortaleza", "tipo": "auditoria", "inicio": "2026-03-09", "fim": "2026-03-09", "status": "realizado"}, {"id": 105, "consultor": "Ricardo Matos", "unidade": "353 - Capão Bonito", "tipo": "auditoria", "inicio": "2026-02-12", "fim": "2026-02-12", "status": "realizado"}, {"id": 106, "consultor": "Ricardo Matos", "unidade": "358 - Taquaritinga", "tipo": "auditoria", "inicio": "2026-01-29", "fim": "2026-01-29", "status": "realizado"}, {"id": 107, "consultor": "Ricardo Matos", "unidade": "369 - VCA Boa Vista", "tipo": "auditoria", "inicio": "2026-03-30", "fim": "2026-03-31", "status": "realizado"}, {"id": 108, "consultor": "Ricardo Matos", "unidade": "349 - Araras Centro", "tipo": "auditoria", "inicio": "2026-01-27", "fim": "2026-01-27", "status": "realizado"}, {"id": 109, "consultor": "Ricardo Matos", "unidade": "291 - Select Brasil 500", "tipo": "auditoria", "inicio": "2026-02-27", "fim": "2026-02-27", "status": "realizado"}, {"id": 110, "consultor": "Ricardo Matos", "unidade": "168 - Parque Das Nações", "tipo": "auditoria", "inicio": "2026-05-06", "fim": "2026-05-06", "status": "realizado"}, {"id": 111, "consultor": "Ricardo Andrade", "unidade": "190 - Wanel Ville", "tipo": "auditoria", "inicio": "2026-02-04", "fim": "2026-02-04", "status": "realizado"}, {"id": 112, "consultor": "Ricardo Andrade", "unidade": "247 - Altino Arantes", "tipo": "auditoria", "inicio": "2026-02-05", "fim": "2026-02-05", "status": "realizado"}, {"id": 113, "consultor": "Ricardo Andrade", "unidade": "140 - Jundiaí Vila Agricola", "tipo": "auditoria", "inicio": "2026-02-24", "fim": "2026-02-24", "status": "realizado"}, {"id": 114, "consultor": "Ricardo Andrade", "unidade": "082 - Somenzari", "tipo": "auditoria", "inicio": "2026-03-30", "fim": "2026-03-30", "status": "realizado"}, {"id": 115, "consultor": "Ricardo Andrade", "unidade": "237 - Martins Coelho", "tipo": "auditoria", "inicio": "2026-03-31", "fim": "2026-03-31", "status": "realizado"}, {"id": 116, "consultor": "Ricardo Andrade", "unidade": "378 - Nova Marília", "tipo": "auditoria", "inicio": "2026-04-01", "fim": "2026-04-01", "status": "realizado"}, {"id": 117, "consultor": "Ricardo Andrade", "unidade": "054 - Atibaia", "tipo": "auditoria", "inicio": "2026-03-03", "fim": "2026-03-03", "status": "realizado"}, {"id": 118, "consultor": "Ricardo Andrade", "unidade": "094 - Atibaia Cerejeiras", "tipo": "auditoria", "inicio": "2026-03-04", "fim": "2026-03-04", "status": "realizado"}, {"id": 119, "consultor": "Ricardo Andrade", "unidade": "174 - Ferroviários", "tipo": "auditoria", "inicio": "2026-03-12", "fim": "2026-03-12", "status": "realizado"}, {"id": 120, "consultor": "Ricardo Andrade", "unidade": "152 - Vista Alegre", "tipo": "auditoria", "inicio": "2026-03-24", "fim": "2026-03-24", "status": "realizado"}, {"id": 121, "consultor": "Ricardo Andrade", "unidade": "364 - Cruzeiro do Sul", "tipo": "auditoria", "inicio": "2026-03-25", "fim": "2026-03-25", "status": "realizado"}, {"id": 122, "consultor": "Ricardo Andrade", "unidade": "225 - Castelo Branco", "tipo": "auditoria", "inicio": "2026-03-26", "fim": "2026-03-26", "status": "realizado"}, {"id": 123, "consultor": "Ricardo Andrade", "unidade": "228 - Dom Aguirre", "tipo": "auditoria", "inicio": "2026-02-11", "fim": "2026-02-11", "status": "realizado"}, {"id": 124, "consultor": "Ricardo Andrade", "unidade": "423 - Ibiti", "tipo": "auditoria", "inicio": "2026-02-12", "fim": "2026-02-12", "status": "realizado"}, {"id": 125, "consultor": "Ricardo Andrade", "unidade": "160 - Vila Rami", "tipo": "auditoria", "inicio": "2026-02-25", "fim": "2026-02-25", "status": "realizado"}, {"id": 126, "consultor": "Ricardo Andrade", "unidade": "013 - Paulínia", "tipo": "auditoria", "inicio": "2026-03-02", "fim": "2026-03-02", "status": "realizado"}, {"id": 127, "consultor": "Ricardo Andrade", "unidade": "062 - Nova Odessa", "tipo": "auditoria", "inicio": "2026-03-11", "fim": "2026-03-11", "status": "realizado"}, {"id": 128, "consultor": "Ricardo Andrade", "unidade": "268 - Vila Prado", "tipo": "auditoria", "inicio": "2026-03-09", "fim": "2026-03-09", "status": "realizado"}, {"id": 129, "consultor": "Ricardo Andrade", "unidade": "103 - General", "tipo": "auditoria", "inicio": "2026-02-02", "fim": "2026-02-02", "status": "realizado"}, {"id": 130, "consultor": "Ricardo Andrade", "unidade": "331 - Pannuzio", "tipo": "auditoria", "inicio": "2026-02-03", "fim": "2026-02-03", "status": "realizado"}, {"id": 131, "consultor": "Ricardo Andrade", "unidade": "193 - Duque De Caxias", "tipo": "auditoria", "inicio": "2026-03-23", "fim": "2026-03-23", "status": "realizado"}, {"id": 132, "consultor": "Karina Morais", "unidade": "003 - Rosolem", "tipo": "auditoria", "inicio": "2026-04-14", "fim": "2026-04-14", "status": "realizado"}, {"id": 133, "consultor": "Karina Morais", "unidade": "015 - Georgina", "tipo": "auditoria", "inicio": "2026-03-03", "fim": "2026-03-03", "status": "realizado"}, {"id": 134, "consultor": "Karina Morais", "unidade": "017 - Jaguariuna", "tipo": "auditoria", "inicio": "2026-04-02", "fim": "2026-04-02", "status": "realizado"}, {"id": 135, "consultor": "Karina Morais", "unidade": "021 - Nova Europa", "tipo": "auditoria", "inicio": "2026-04-01", "fim": "2026-04-01", "status": "realizado"}, {"id": 136, "consultor": "Karina Morais", "unidade": "038 - Cambui", "tipo": "auditoria", "inicio": "2026-03-04", "fim": "2026-03-04", "status": "realizado"}, {"id": 137, "consultor": "Karina Morais", "unidade": "071 - Chácara Primavera", "tipo": "auditoria", "inicio": "2026-02-03", "fim": "2026-02-03", "status": "realizado"}, {"id": 138, "consultor": "Karina Morais", "unidade": "081 - Glicério", "tipo": "auditoria", "inicio": "2026-03-19", "fim": "2026-03-19", "status": "realizado"}, {"id": 139, "consultor": "Karina Morais", "unidade": "108 - Castelo", "tipo": "auditoria", "inicio": "2026-03-04", "fim": "2026-03-04", "status": "realizado"}, {"id": 140, "consultor": "Karina Morais", "unidade": "157 - Nova Alvorada", "tipo": "auditoria", "inicio": "2026-04-14", "fim": "2026-04-14", "status": "realizado"}, {"id": 141, "consultor": "Karina Morais", "unidade": "163 - Jardim Jatobá", "tipo": "auditoria", "inicio": "2026-04-22", "fim": "2026-04-22", "status": "realizado"}, {"id": 142, "consultor": "Karina Morais", "unidade": "192 - Xv De Novembro", "tipo": "auditoria", "inicio": "2026-02-27", "fim": "2026-02-27", "status": "realizado"}, {"id": 143, "consultor": "Karina Morais", "unidade": "206 - São Marcos", "tipo": "auditoria", "inicio": "2026-04-01", "fim": "2026-04-01", "status": "realizado"}, {"id": 144, "consultor": "Karina Morais", "unidade": "219 - Sapopemba", "tipo": "auditoria", "inicio": "2026-03-26", "fim": "2026-03-26", "status": "realizado"}, {"id": 145, "consultor": "Karina Morais", "unidade": "246 - Anália Franco", "tipo": "auditoria", "inicio": "2026-03-25", "fim": "2026-03-25", "status": "realizado"}, {"id": 146, "consultor": "Karina Morais", "unidade": "271 - República", "tipo": "auditoria", "inicio": "2026-03-24", "fim": "2026-03-24", "status": "realizado"}, {"id": 147, "consultor": "Karina Morais", "unidade": "276 - Vila Formosa", "tipo": "auditoria", "inicio": "2026-03-26", "fim": "2026-03-26", "status": "realizado"}, {"id": 148, "consultor": "Ariadine Oliveira", "unidade": "031 - Lorena", "tipo": "auditoria", "inicio": "2026-04-20", "fim": "2026-04-20", "status": "agendado"}, {"id": 149, "consultor": "Ariadine Oliveira", "unidade": "035 - Araraquara", "tipo": "auditoria", "inicio": "2026-04-14", "fim": "2026-04-14", "status": "agendado"}, {"id": 150, "consultor": "Ariadine Oliveira", "unidade": "036 - Rio Claro", "tipo": "auditoria", "inicio": "2026-04-22", "fim": "2026-04-22", "status": "agendado"}, {"id": 151, "consultor": "Ariadine Oliveira", "unidade": "066 - Pereira Barreto", "tipo": "auditoria", "inicio": "2026-04-28", "fim": "2026-04-28", "status": "agendado"}, {"id": 152, "consultor": "Ariadine Oliveira", "unidade": "096 - Jamaica", "tipo": "auditoria", "inicio": "2026-04-29", "fim": "2026-04-29", "status": "agendado"}, {"id": 153, "consultor": "Ariadine Oliveira", "unidade": "159 - Itupeva", "tipo": "auditoria", "inicio": "2026-04-17", "fim": "2026-04-17", "status": "agendado"}, {"id": 154, "consultor": "Ariadine Oliveira", "unidade": "165 - Campo Grande 2", "tipo": "auditoria", "inicio": "2026-04-13", "fim": "2026-04-13", "status": "agendado"}, {"id": 155, "consultor": "Ariadine Oliveira", "unidade": "178 - Jardim Dona Benta", "tipo": "auditoria", "inicio": "2026-04-30", "fim": "2026-04-30", "status": "agendado"}, {"id": 156, "consultor": "Ariadine Oliveira", "unidade": "182 - Campo Limpo", "tipo": "auditoria", "inicio": "2026-04-16", "fim": "2026-04-16", "status": "agendado"}, {"id": 157, "consultor": "Ariadine Oliveira", "unidade": "188 - Araraquara Centro", "tipo": "auditoria", "inicio": "2026-04-15", "fim": "2026-04-15", "status": "agendado"}, {"id": 158, "consultor": "Ariadine Oliveira", "unidade": "230 - Saburo Akamine", "tipo": "auditoria", "inicio": "2026-04-23", "fim": "2026-04-23", "status": "agendado"}, {"id": 159, "consultor": "Ariadine Oliveira", "unidade": "345 - Jardim Vilage", "tipo": "auditoria", "inicio": "2026-04-24", "fim": "2026-04-24", "status": "agendado"}, {"id": 160, "consultor": "Ariadine Oliveira", "unidade": "359 - Vale do Sol", "tipo": "auditoria", "inicio": "2026-04-14", "fim": "2026-04-14", "status": "agendado"}, {"id": 161, "consultor": "Camila Toffoli", "unidade": "005 - Taquaral", "tipo": "auditoria", "inicio": "2026-04-03", "fim": "2026-04-03", "status": "agendado"}, {"id": 162, "consultor": "Camila Toffoli", "unidade": "280 - Vila Antonio", "tipo": "auditoria", "inicio": "2026-04-28", "fim": "2026-04-28", "status": "agendado"}, {"id": 163, "consultor": "Daiana Ribeiro", "unidade": "114 - Tranquilidade", "tipo": "auditoria", "inicio": "2026-04-28", "fim": "2026-04-28", "status": "agendado"}, {"id": 164, "consultor": "Daiana Ribeiro", "unidade": "185 - Penha", "tipo": "auditoria", "inicio": "2026-04-28", "fim": "2026-04-28", "status": "agendado"}, {"id": 165, "consultor": "Daiana Ribeiro", "unidade": "261 - Arena", "tipo": "auditoria", "inicio": "2026-04-23", "fim": "2026-04-23", "status": "agendado"}, {"id": 166, "consultor": "Daiana Ribeiro", "unidade": "286 - Belenzinho", "tipo": "auditoria", "inicio": "2026-04-29", "fim": "2026-04-29", "status": "agendado"}, {"id": 167, "consultor": "Daiana Ribeiro", "unidade": "354 - Dom Nery", "tipo": "auditoria", "inicio": "2026-04-30", "fim": "2026-04-30", "status": "agendado"}, {"id": 168, "consultor": "Daiana Ribeiro", "unidade": "356 - Presidente Dutra", "tipo": "auditoria", "inicio": "2026-04-07", "fim": "2026-04-07", "status": "agendado"}, {"id": 169, "consultor": "Daiana Ribeiro", "unidade": "340 - Green Village", "tipo": "auditoria", "inicio": "2026-04-29", "fim": "2026-04-29", "status": "agendado"}, {"id": 170, "consultor": "Daiana Ribeiro", "unidade": "196 - Boturussu", "tipo": "auditoria", "inicio": "2026-04-30", "fim": "2026-04-30", "status": "agendado"}, {"id": 171, "consultor": "Nicolas Zerbinatti", "unidade": "223 - Roldão Mogi Guaçu", "tipo": "auditoria", "inicio": "2026-04-15", "fim": "2026-04-15", "status": "agendado"}, {"id": 172, "consultor": "Nicolas Zerbinatti", "unidade": "256 - Vianas", "tipo": "auditoria", "inicio": "2026-04-27", "fim": "2026-04-27", "status": "agendado"}, {"id": 173, "consultor": "Nicolas Zerbinatti", "unidade": "282 - Marajoara", "tipo": "auditoria", "inicio": "2026-04-30", "fim": "2026-04-30", "status": "agendado"}, {"id": 174, "consultor": "Nicolas Zerbinatti", "unidade": "367 - Passos", "tipo": "auditoria", "inicio": "2026-04-17", "fim": "2026-04-17", "status": "agendado"}, {"id": 175, "consultor": "Nicolas Zerbinatti", "unidade": "204 - Martim Francisco", "tipo": "auditoria", "inicio": "2026-04-22", "fim": "2026-04-22", "status": "agendado"}, {"id": 176, "consultor": "Nicolas Zerbinatti", "unidade": "216 - Vila Luzita", "tipo": "auditoria", "inicio": "2026-04-29", "fim": "2026-04-29", "status": "agendado"}, {"id": 177, "consultor": "Nicolas Zerbinatti", "unidade": "065 - Dom Pedro 1", "tipo": "auditoria", "inicio": "2026-04-30", "fim": "2026-04-30", "status": "agendado"}, {"id": 178, "consultor": "Nicolas Zerbinatti", "unidade": "104 - Diadema Eldorado", "tipo": "auditoria", "inicio": "2026-04-08", "fim": "2026-04-08", "status": "agendado"}, {"id": 179, "consultor": "Tamires Macedo", "unidade": "294 - Caraguá", "tipo": "auditoria", "inicio": "2026-04-07", "fim": "2026-04-07", "status": "agendado"}, {"id": 180, "consultor": "Tamires Macedo", "unidade": "375 - Canto do Mar", "tipo": "auditoria", "inicio": "2026-04-08", "fim": "2026-04-08", "status": "agendado"}, {"id": 181, "consultor": "Ingrid Gomes", "unidade": "057 - Maringá", "tipo": "auditoria", "inicio": "2026-04-22", "fim": "2026-04-22", "status": "agendado"}, {"id": 182, "consultor": "Ingrid Gomes", "unidade": "220 - Colombo", "tipo": "auditoria", "inicio": "2026-04-23", "fim": "2026-04-23", "status": "agendado"}, {"id": 183, "consultor": "Ingrid Gomes", "unidade": "255 - Guarapuava", "tipo": "auditoria", "inicio": "2026-04-29", "fim": "2026-04-29", "status": "agendado"}, {"id": 184, "consultor": "Ricardo Andrade", "unidade": "231 - Itapetininga", "tipo": "auditoria", "inicio": "2026-04-14", "fim": "2026-04-14", "status": "agendado"}, {"id": 185, "consultor": "Ricardo Andrade", "unidade": "332 - Cerquilho", "tipo": "auditoria", "inicio": "2026-04-15", "fim": "2026-04-15", "status": "agendado"}, {"id": 186, "consultor": "Ricardo Andrade", "unidade": "133 - Maria Rosa", "tipo": "auditoria", "inicio": "2026-04-22", "fim": "2026-04-22", "status": "agendado"}, {"id": 187, "consultor": "Ricardo Andrade", "unidade": "396 - Jequirituba", "tipo": "auditoria", "inicio": "2026-04-23", "fim": "2026-04-23", "status": "agendado"}, {"id": 188, "consultor": "Karina Morais", "unidade": "012 - Americana 1", "tipo": "auditoria", "inicio": "2026-04-24", "fim": "2026-04-24", "status": "agendado"}, {"id": 189, "consultor": "Karina Morais", "unidade": "016 - Spazio Ouro Verde", "tipo": "auditoria", "inicio": "2026-04-23", "fim": "2026-04-23", "status": "agendado"}, {"id": 190, "consultor": "Karina Morais", "unidade": "024 - Santa Barbara", "tipo": "auditoria", "inicio": "2026-04-17", "fim": "2026-04-17", "status": "agendado"}, {"id": 191, "consultor": "Karina Morais", "unidade": "041 - Santa Barbara 2", "tipo": "auditoria", "inicio": "2026-04-17", "fim": "2026-04-17", "status": "agendado"}, {"id": 192, "consultor": "Karina Morais", "unidade": "092 - Bragança Paulista", "tipo": "auditoria", "inicio": "2026-04-30", "fim": "2026-04-30", "status": "agendado"}, {"id": 193, "consultor": "Karina Morais", "unidade": "109 - São Luis", "tipo": "auditoria", "inicio": "2026-04-24", "fim": "2026-04-24", "status": "agendado"}, {"id": 194, "consultor": "Karina Morais", "unidade": "197 - Iacanga", "tipo": "auditoria", "inicio": "2026-04-24", "fim": "2026-04-24", "status": "agendado"}, {"id": 195, "consultor": "Karina Morais", "unidade": "209 - São Vito", "tipo": "auditoria", "inicio": "2026-04-24", "fim": "2026-04-24", "status": "agendado"}, {"id": 196, "consultor": "Karina Morais", "unidade": "210 - Moraes Salles", "tipo": "auditoria", "inicio": "2026-04-16", "fim": "2026-04-16", "status": "agendado"}, {"id": 197, "consultor": "Karina Morais", "unidade": "278 - Vila São José", "tipo": "auditoria", "inicio": "2026-04-24", "fim": "2026-04-24", "status": "agendado"}, {"id": 198, "consultor": "Karina Morais", "unidade": "303 - Recanto Fortuna", "tipo": "auditoria", "inicio": "2026-04-15", "fim": "2026-04-15", "status": "agendado"}, {"id": 199, "consultor": "Karina Morais", "unidade": "333 - Via Norte", "tipo": "auditoria", "inicio": "2026-04-15", "fim": "2026-04-15", "status": "agendado"}, {"id": 200, "consultor": "Karina Morais", "unidade": "391 - Oziel", "tipo": "auditoria", "inicio": "2026-04-29", "fim": "2026-04-29", "status": "agendado"}, {"id": 201, "consultor": "Karina Morais", "unidade": "169 - Roldão Capitão João", "tipo": "auditoria", "inicio": "2026-04-17", "fim": "2026-04-17", "status": "agendado"}, {"id": 202, "consultor": "Karina Morais", "unidade": "346 - Vila Magini", "tipo": "auditoria", "inicio": "2026-04-22", "fim": "2026-04-22", "status": "agendado"}, {"id": 203, "consultor": "Ariadine Oliveira", "unidade": "106 - Marechal Tito", "tipo": "auditoria", "inicio": "2026-05-19", "fim": "2026-05-19", "status": "agendado"}, {"id": 204, "consultor": "Ariadine Oliveira", "unidade": "135 - Italo Adami", "tipo": "auditoria", "inicio": "2026-05-20", "fim": "2026-05-20", "status": "agendado"}, {"id": 205, "consultor": "Ariadine Oliveira", "unidade": "146 - Curuça", "tipo": "auditoria", "inicio": "2026-05-21", "fim": "2026-05-21", "status": "agendado"}, {"id": 206, "consultor": "Ariadine Oliveira", "unidade": "172 - Barreiros", "tipo": "auditoria", "inicio": "2026-05-02", "fim": "2026-05-02", "status": "agendado"}, {"id": 207, "consultor": "Ariadine Oliveira", "unidade": "173 - Ferraz Centro", "tipo": "auditoria", "inicio": "2026-06-09", "fim": "2026-06-09", "status": "agendado"}, {"id": 208, "consultor": "Ariadine Oliveira", "unidade": "217 - Barra Bonita", "tipo": "auditoria", "inicio": "2026-05-15", "fim": "2026-05-15", "status": "agendado"}, {"id": 209, "consultor": "Ariadine Oliveira", "unidade": "233 - Vazame", "tipo": "auditoria", "inicio": "2026-05-13", "fim": "2026-05-13", "status": "agendado"}, {"id": 210, "consultor": "Ariadine Oliveira", "unidade": "234 - Embu Centro", "tipo": "auditoria", "inicio": "2026-05-14", "fim": "2026-05-14", "status": "agendado"}, {"id": 211, "consultor": "Ariadine Oliveira", "unidade": "249 - SJ Rio Preto Centro", "tipo": "auditoria", "inicio": "2026-05-28", "fim": "2026-05-28", "status": "agendado"}, {"id": 212, "consultor": "Ariadine Oliveira", "unidade": "259 - Parada 15 de Novembro", "tipo": "auditoria", "inicio": "2026-06-11", "fim": "2026-06-11", "status": "agendado"}, {"id": 213, "consultor": "Ariadine Oliveira", "unidade": "272 - Vera Cruz", "tipo": "auditoria", "inicio": "2026-05-12", "fim": "2026-05-12", "status": "agendado"}, {"id": 214, "consultor": "Ariadine Oliveira", "unidade": "273 - Mococa", "tipo": "auditoria", "inicio": "2026-06-02", "fim": "2026-06-02", "status": "agendado"}, {"id": 215, "consultor": "Ariadine Oliveira", "unidade": "287 - Votuporanga", "tipo": "auditoria", "inicio": "2026-05-26", "fim": "2026-05-26", "status": "agendado"}, {"id": 216, "consultor": "Ariadine Oliveira", "unidade": "292 - Gianetti", "tipo": "auditoria", "inicio": "2026-06-10", "fim": "2026-06-10", "status": "agendado"}, {"id": 217, "consultor": "Ariadine Oliveira", "unidade": "307 - Caxias RJ", "tipo": "auditoria", "inicio": "2026-06-16", "fim": "2026-06-16", "status": "agendado"}, {"id": 218, "consultor": "Ariadine Oliveira", "unidade": "348 - Capão Canoa", "tipo": "auditoria", "inicio": "2026-05-07", "fim": "2026-05-07", "status": "agendado"}, {"id": 219, "consultor": "Camila Toffoli", "unidade": "074 - Osasco Medici", "tipo": "auditoria", "inicio": "2026-05-13", "fim": "2026-05-13", "status": "agendado"}, {"id": 220, "consultor": "Camila Toffoli", "unidade": "118 - Intercontinental", "tipo": "auditoria", "inicio": "2026-05-19", "fim": "2026-05-19", "status": "agendado"}, {"id": 221, "consultor": "Camila Toffoli", "unidade": "134 - Yervant", "tipo": "auditoria", "inicio": "2026-05-19", "fim": "2026-05-19", "status": "agendado"}, {"id": 222, "consultor": "Camila Toffoli", "unidade": "244 - Residencial Cocaia", "tipo": "auditoria", "inicio": "2026-05-05", "fim": "2026-05-05", "status": "agendado"}, {"id": 223, "consultor": "Camila Toffoli", "unidade": "266 - Parque Independência", "tipo": "auditoria", "inicio": "2026-05-12", "fim": "2026-05-12", "status": "agendado"}, {"id": 224, "consultor": "Camila Toffoli", "unidade": "320 - Anacé", "tipo": "auditoria", "inicio": "2026-05-12", "fim": "2026-05-12", "status": "agendado"}, {"id": 225, "consultor": "Camila Toffoli", "unidade": "376 - Vila Lurdes", "tipo": "auditoria", "inicio": "2026-05-19", "fim": "2026-05-19", "status": "agendado"}, {"id": 226, "consultor": "Camila Toffoli", "unidade": "117 - Osasco Centro", "tipo": "auditoria", "inicio": "2026-05-19", "fim": "2026-05-19", "status": "agendado"}, {"id": 227, "consultor": "Daiana Ribeiro", "unidade": "098 - Lago Do Silverio", "tipo": "auditoria", "inicio": "2026-05-14", "fim": "2026-05-14", "status": "agendado"}, {"id": 228, "consultor": "Daiana Ribeiro", "unidade": "264 - Boa Esperança", "tipo": "auditoria", "inicio": "2026-05-07", "fim": "2026-05-07", "status": "agendado"}, {"id": 229, "consultor": "Daiana Ribeiro", "unidade": "265 - Lençóis Paulista", "tipo": "auditoria", "inicio": "2026-05-21", "fim": "2026-05-21", "status": "agendado"}, {"id": 230, "consultor": "Daiana Ribeiro", "unidade": "227 - Montes Claros", "tipo": "auditoria", "inicio": "2026-05-28", "fim": "2026-05-28", "status": "agendado"}, {"id": 231, "consultor": "Daiana Ribeiro", "unidade": "339 - Soberana", "tipo": "auditoria", "inicio": "2026-05-06", "fim": "2026-05-06", "status": "agendado"}, {"id": 232, "consultor": "Daiana Ribeiro", "unidade": "360 - São Rafael ZL", "tipo": "auditoria", "inicio": "2026-05-05", "fim": "2026-05-05", "status": "agendado"}, {"id": 233, "consultor": "Daiana Ribeiro", "unidade": "390 - Daniel Fonseca", "tipo": "auditoria", "inicio": "2026-06-03", "fim": "2026-06-03", "status": "agendado"}, {"id": 234, "consultor": "Nicolas Zerbinatti", "unidade": "026 - Pague Menos Sumaré", "tipo": "auditoria", "inicio": "2026-05-15", "fim": "2026-05-15", "status": "agendado"}, {"id": 235, "consultor": "Nicolas Zerbinatti", "unidade": "113 - Sbc Taboão", "tipo": "auditoria", "inicio": "2026-05-21", "fim": "2026-05-21", "status": "agendado"}, {"id": 236, "consultor": "Nicolas Zerbinatti", "unidade": "125 - Sbc Planalto", "tipo": "auditoria", "inicio": "2026-05-22", "fim": "2026-05-22", "status": "agendado"}, {"id": 237, "consultor": "Nicolas Zerbinatti", "unidade": "144 - Mirassol", "tipo": "auditoria", "inicio": "2026-06-30", "fim": "2026-06-30", "status": "agendado"}, {"id": 238, "consultor": "Nicolas Zerbinatti", "unidade": "254 - Jaboticabal", "tipo": "auditoria", "inicio": "2026-05-19", "fim": "2026-05-19", "status": "agendado"}, {"id": 239, "consultor": "Nicolas Zerbinatti", "unidade": "293 - SBC dos Casa", "tipo": "auditoria", "inicio": "2026-05-26", "fim": "2026-05-26", "status": "agendado"}, {"id": 240, "consultor": "Nicolas Zerbinatti", "unidade": "313 - Guararapes", "tipo": "auditoria", "inicio": "2026-05-20", "fim": "2026-05-20", "status": "agendado"}, {"id": 241, "consultor": "Nicolas Zerbinatti", "unidade": "316 - Barcelona", "tipo": "auditoria", "inicio": "2026-05-08", "fim": "2026-05-08", "status": "agendado"}, {"id": 242, "consultor": "Nicolas Zerbinatti", "unidade": "347 - SBC Castelo Branco", "tipo": "auditoria", "inicio": "2026-05-27", "fim": "2026-05-27", "status": "agendado"}, {"id": 243, "consultor": "Nicolas Zerbinatti", "unidade": "357 - Eng. Goulart", "tipo": "auditoria", "inicio": "2026-05-12", "fim": "2026-05-12", "status": "agendado"}, {"id": 244, "consultor": "Nicolas Zerbinatti", "unidade": "242 - Nordestina", "tipo": "auditoria", "inicio": "2026-05-13", "fim": "2026-05-13", "status": "agendado"}, {"id": 245, "consultor": "Nicolas Zerbinatti", "unidade": "207 - Francisco Monteiro", "tipo": "auditoria", "inicio": "2026-05-28", "fim": "2026-05-28", "status": "agendado"}, {"id": 246, "consultor": "Nicolas Zerbinatti", "unidade": "042 - São Caetano Do Sul", "tipo": "auditoria", "inicio": "2026-05-07", "fim": "2026-05-07", "status": "agendado"}, {"id": 247, "consultor": "Nicolas Zerbinatti", "unidade": "218 - Carrão", "tipo": "auditoria", "inicio": "2026-05-07", "fim": "2026-05-07", "status": "agendado"}, {"id": 248, "consultor": "Nicolas Zerbinatti", "unidade": "398 - Divinópolis", "tipo": "auditoria", "inicio": "2026-06-02", "fim": "2026-06-02", "status": "agendado"}, {"id": 249, "consultor": "Nicolas Zerbinatti", "unidade": "419 - Jardim Robru", "tipo": "auditoria", "inicio": "2026-05-14", "fim": "2026-05-14", "status": "agendado"}, {"id": 250, "consultor": "Tamires Macedo", "unidade": "061 - Ruy Rodrigues", "tipo": "auditoria", "inicio": "2026-06-10", "fim": "2026-06-10", "status": "agendado"}, {"id": 251, "consultor": "Tamires Macedo", "unidade": "119 - Vila Antonieta", "tipo": "auditoria", "inicio": "2026-06-17", "fim": "2026-06-17", "status": "agendado"}, {"id": 252, "consultor": "Tamires Macedo", "unidade": "180 - Boulevard Jacarei", "tipo": "auditoria", "inicio": "2026-05-11", "fim": "2026-05-11", "status": "agendado"}, {"id": 253, "consultor": "Tamires Macedo", "unidade": "312 - SJC Satélite", "tipo": "auditoria", "inicio": "2026-05-12", "fim": "2026-05-12", "status": "agendado"}, {"id": 254, "consultor": "Tamires Macedo", "unidade": "338 - SJC América", "tipo": "auditoria", "inicio": "2026-05-13", "fim": "2026-05-13", "status": "agendado"}, {"id": 255, "consultor": "Tamires Macedo", "unidade": "344 - SJC Ferradura", "tipo": "auditoria", "inicio": "2026-05-14", "fim": "2026-05-14", "status": "agendado"}, {"id": 256, "consultor": "Ricardo Matos", "unidade": "043 - Morada Do Sol", "tipo": "auditoria", "inicio": "2026-05-07", "fim": "2026-05-07", "status": "agendado"}, {"id": 257, "consultor": "Ricardo Matos", "unidade": "099 - Nóbrega", "tipo": "auditoria", "inicio": "2026-05-05", "fim": "2026-05-05", "status": "agendado"}, {"id": 258, "consultor": "Geraldo Ribeiro", "unidade": "191 - Jaiara", "tipo": "auditoria", "inicio": "2026-06-15", "fim": "2026-06-15", "status": "agendado"}, {"id": 259, "consultor": "Geraldo Ribeiro", "unidade": "203 - Setor Oeste", "tipo": "auditoria", "inicio": "2026-06-16", "fim": "2026-06-16", "status": "agendado"}, {"id": 260, "consultor": "Geraldo Ribeiro", "unidade": "258 - Araxá", "tipo": "auditoria", "inicio": "2026-06-16", "fim": "2026-06-16", "status": "agendado"}, {"id": 261, "consultor": "Geraldo Ribeiro", "unidade": "275 - Leste Universitário", "tipo": "auditoria", "inicio": "2026-06-17", "fim": "2026-06-17", "status": "agendado"}, {"id": 262, "consultor": "Geraldo Ribeiro", "unidade": "297 - Mega Polo", "tipo": "auditoria", "inicio": "2026-06-17", "fim": "2026-06-17", "status": "agendado"}, {"id": 263, "consultor": "Geraldo Ribeiro", "unidade": "298 - Maysa", "tipo": "auditoria", "inicio": "2026-06-18", "fim": "2026-06-18", "status": "agendado"}, {"id": 264, "consultor": "Geraldo Ribeiro", "unidade": "355 - Divisa", "tipo": "auditoria", "inicio": "2026-06-18", "fim": "2026-06-18", "status": "agendado"}, {"id": 265, "consultor": "Geraldo Ribeiro", "unidade": "362 - Perimetral", "tipo": "auditoria", "inicio": "2026-06-19", "fim": "2026-06-19", "status": "agendado"}, {"id": 266, "consultor": "Geraldo Ribeiro", "unidade": "370 - Independência APGyn", "tipo": "auditoria", "inicio": "2026-06-22", "fim": "2026-06-22", "status": "agendado"}, {"id": 267, "consultor": "Geraldo Ribeiro", "unidade": "407 - Nova Suiça", "tipo": "auditoria", "inicio": "2026-06-23", "fim": "2026-06-23", "status": "agendado"}, {"id": 268, "consultor": "Geraldo Ribeiro", "unidade": "424 - Parque Amazônia", "tipo": "auditoria", "inicio": "2026-06-24", "fim": "2026-06-24", "status": "agendado"}, {"id": 269, "consultor": "Ricardo Andrade", "unidade": "075 - Ipanema Sorocaba", "tipo": "auditoria", "inicio": "2026-05-12", "fim": "2026-05-12", "status": "agendado"}, {"id": 270, "consultor": "Ricardo Andrade", "unidade": "149 - Jj Lacerda", "tipo": "auditoria", "inicio": "2026-05-13", "fim": "2026-05-13", "status": "agendado"}, {"id": 271, "consultor": "Ricardo Andrade", "unidade": "283 - Julio de Mesquita", "tipo": "auditoria", "inicio": "2026-05-14", "fim": "2026-05-14", "status": "agendado"}, {"id": 272, "consultor": "Ricardo Andrade", "unidade": "030 - Santa Terezinha", "tipo": "auditoria", "inicio": "2026-05-19", "fim": "2026-05-19", "status": "agendado"}, {"id": 273, "consultor": "Ricardo Andrade", "unidade": "214 - Botucatu", "tipo": "auditoria", "inicio": "2026-05-26", "fim": "2026-05-26", "status": "agendado"}, {"id": 274, "consultor": "Ricardo Andrade", "unidade": "158 - Tatui Centro", "tipo": "auditoria", "inicio": "2026-05-28", "fim": "2026-05-28", "status": "agendado"}, {"id": 275, "consultor": "Ricardo Andrade", "unidade": "177 - Concordia", "tipo": "auditoria", "inicio": "2026-05-05", "fim": "2026-05-05", "status": "agendado"}, {"id": 276, "consultor": "Ricardo Andrade", "unidade": "236 - Jussara", "tipo": "auditoria", "inicio": "2026-05-06", "fim": "2026-05-06", "status": "agendado"}, {"id": 277, "consultor": "Ricardo Andrade", "unidade": "374 - Dois de Dezembro", "tipo": "auditoria", "inicio": "2026-05-07", "fim": "2026-05-07", "status": "agendado"}, {"id": 278, "consultor": "Ricardo Andrade", "unidade": "439 - Birigui Moderno", "tipo": "auditoria", "inicio": "2026-05-01", "fim": "2026-05-01", "status": "agendado"}, {"id": 279, "consultor": "Ricardo Andrade", "unidade": "229 - Dois Córregos", "tipo": "auditoria", "inicio": "2026-06-02", "fim": "2026-06-02", "status": "agendado"}, {"id": 280, "consultor": "Ricardo Andrade", "unidade": "050 - Paulicéia", "tipo": "auditoria", "inicio": "2026-06-03", "fim": "2026-06-03", "status": "agendado"}, {"id": 281, "consultor": "Ricardo Andrade", "unidade": "128 - Piracicaba Centro", "tipo": "auditoria", "inicio": "2026-06-04", "fim": "2026-06-04", "status": "agendado"}, {"id": 282, "consultor": "Karina Morais", "unidade": "007 - Amanda", "tipo": "auditoria", "inicio": "2026-06-25", "fim": "2026-06-25", "status": "agendado"}, {"id": 283, "consultor": "Karina Morais", "unidade": "025 - Pague Menos Limeira", "tipo": "auditoria", "inicio": "2026-05-06", "fim": "2026-05-06", "status": "agendado"}, {"id": 284, "consultor": "Karina Morais", "unidade": "028 - Artur Nogueira", "tipo": "auditoria", "inicio": "2026-05-07", "fim": "2026-05-07", "status": "agendado"}, {"id": 285, "consultor": "Karina Morais", "unidade": "034 - Pirassununga", "tipo": "auditoria", "inicio": "2026-05-04", "fim": "2026-05-04", "status": "agendado"}, {"id": 286, "consultor": "Karina Morais", "unidade": "045 - Limeira Centro", "tipo": "auditoria", "inicio": "2026-05-06", "fim": "2026-05-06", "status": "agendado"}, {"id": 287, "consultor": "Karina Morais", "unidade": "047 - Cosmópolis", "tipo": "auditoria", "inicio": "2026-05-08", "fim": "2026-05-08", "status": "agendado"}, {"id": 288, "consultor": "Karina Morais", "unidade": "048 - Mogi Guaçu", "tipo": "auditoria", "inicio": "2026-05-25", "fim": "2026-05-25", "status": "agendado"}, {"id": 289, "consultor": "Karina Morais", "unidade": "077 - Cocaia Guarulhos", "tipo": "auditoria", "inicio": "2026-05-11", "fim": "2026-05-11", "status": "agendado"}, {"id": 290, "consultor": "Karina Morais", "unidade": "089 - Amparo", "tipo": "auditoria", "inicio": "2026-05-27", "fim": "2026-05-27", "status": "agendado"}, {"id": 291, "consultor": "Karina Morais", "unidade": "097 - São Rafael", "tipo": "auditoria", "inicio": "2026-05-19", "fim": "2026-05-19", "status": "agendado"}, {"id": 292, "consultor": "Karina Morais", "unidade": "126 - Aviação", "tipo": "auditoria", "inicio": "2026-06-16", "fim": "2026-06-16", "status": "agendado"}, {"id": 293, "consultor": "Karina Morais", "unidade": "127 - Diadema Nogueira", "tipo": "auditoria", "inicio": "2026-05-19", "fim": "2026-05-19", "status": "agendado"}, {"id": 294, "consultor": "Karina Morais", "unidade": "150 - Diadema Centro", "tipo": "auditoria", "inicio": "2026-05-19", "fim": "2026-05-19", "status": "agendado"}, {"id": 295, "consultor": "Karina Morais", "unidade": "167 - Roldão Vila Ema", "tipo": "auditoria", "inicio": "2026-05-13", "fim": "2026-05-13", "status": "agendado"}, {"id": 296, "consultor": "Karina Morais", "unidade": "211 - Iracemápolis", "tipo": "auditoria", "inicio": "2026-05-05", "fim": "2026-05-05", "status": "agendado"}, {"id": 297, "consultor": "Karina Morais", "unidade": "224 - Silvestre", "tipo": "auditoria", "inicio": "2026-05-12", "fim": "2026-05-12", "status": "agendado"}, {"id": 298, "consultor": "Karina Morais", "unidade": "245 - Itapira", "tipo": "auditoria", "inicio": "2026-05-26", "fim": "2026-05-26", "status": "agendado"}, {"id": 299, "consultor": "Karina Morais", "unidade": "248 - Itoupava Norte", "tipo": "auditoria", "inicio": "2026-06-02", "fim": "2026-06-02", "status": "agendado"}, {"id": 300, "consultor": "Karina Morais", "unidade": "251 - Rosamélia", "tipo": "auditoria", "inicio": "2026-05-08", "fim": "2026-05-08", "status": "agendado"}, {"id": 301, "consultor": "Karina Morais", "unidade": "257 - Tupi", "tipo": "auditoria", "inicio": "2026-06-16", "fim": "2026-06-16", "status": "agendado"}, {"id": 302, "consultor": "Karina Morais", "unidade": "330 - Assai Guarujá", "tipo": "auditoria", "inicio": "2026-06-15", "fim": "2026-06-15", "status": "agendado"}, {"id": 303, "consultor": "Karina Morais", "unidade": "352 - Vila Prudente", "tipo": "auditoria", "inicio": "2026-05-13", "fim": "2026-05-13", "status": "agendado"}, {"id": 304, "consultor": "Karina Morais", "unidade": "366 - Salgado Filho", "tipo": "auditoria", "inicio": "2026-05-12", "fim": "2026-05-12", "status": "agendado"}, {"id": 305, "consultor": "Karina Morais", "unidade": "372 - Nova Andradina", "tipo": "auditoria", "inicio": "2026-06-09", "fim": "2026-06-09", "status": "agendado"}, {"id": 306, "consultor": "Karina Morais", "unidade": "389 - Três Lagoas Centro", "tipo": "auditoria", "inicio": "2026-06-10", "fim": "2026-06-10", "status": "agendado"}, {"id": 307, "consultor": "Karina Morais", "unidade": "403 - Vila Izabel", "tipo": "auditoria", "inicio": "2026-05-11", "fim": "2026-05-11", "status": "agendado"}, {"id": 308, "consultor": "Karina Morais", "unidade": "428 - Guilhermina", "tipo": "auditoria", "inicio": "2026-06-17", "fim": "2026-06-17", "status": "agendado"}];
+  nextId=309;
+}
+
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+const pad=n=>String(n).padStart(2,'0');
+const parseD=s=>{const[y,mo,d]=s.split('-').map(Number);return new Date(y,mo-1,d);};
+const dim=(y,m)=>new Date(y,m+1,0).getDate();
+const ini2=n=>n.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+// ─── FERIADOS ──────────────────────────────────────────────────────────────────
+const FERIADOS_FIXOS=[[1,1],[4,21],[5,1],[9,7],[10,12],[11,2],[11,15],[12,25]];
+function isFeriado(y,m,d){
+  if(FERIADOS_FIXOS.some(([fm,fd])=>fm===m+1&&fd===d))return true;
+  // Páscoa (algoritmo)
+  const a=y%19,b=Math.floor(y/100),c=y%100,d2=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d2-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m2=Math.floor((a+11*h+22*l)/451),month=Math.floor((h+l-7*m2+114)/31),day=((h+l-7*m2+114)%31)+1;
+  const easter=new Date(y,month-1,day);
+  const sexta=new Date(easter);sexta.setDate(easter.getDate()-2);
+  const corpus=new Date(easter);corpus.setDate(easter.getDate()+60);
+  return(m===sexta.getMonth()&&d===sexta.getDate())||(m===easter.getMonth()&&d===easter.getDate())||(m===corpus.getMonth()&&d===corpus.getDate());
+}
+
+
+// ─── SYNC ─────────────────────────────────────────────────────────────────────
+function setSyncStatus(s){
+  const el=document.getElementById('sync-status');
+  if(!el)return;
+  if(s==='ok')el.textContent='✓ sincronizado';
+  else if(s==='err')el.textContent='⚠ sem conexão';
+  else if(s==='syncing')el.textContent='⟳ sincronizando...';
+  else el.textContent='';
+}
+function loadLocal(){
+  try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);eventos=d.eventos||[];nextId=d.nextId||1;}}catch(e){}
+}
+async function loadFromSheets(){
+  if(SHEETS_URL==='COLE_AQUI_A_URL_DO_APPS_SCRIPT')return false;
+  try{
+    setSyncStatus('syncing');
+    const r=await fetch(SHEETS_URL+'?action=get');
+    if(!r.ok)throw new Error();
+    const d=await r.json();
+    // Só atualiza se tiver dados na nuvem E forem mais recentes (mais eventos)
+    if(d.eventos && d.nextId && d.nextId > nextId){
+      eventos=d.eventos;
+      nextId=d.nextId;
+      save();
+    }
+    setSyncStatus('ok');return true;
+  }catch(e){setSyncStatus('err');return false;}
+}
+async function syncToSheets(){
+  if(SHEETS_URL==='COLE_AQUI_A_URL_DO_APPS_SCRIPT')return;
+  if(syncando)return;syncando=true;
+  try{
+    setSyncStatus('syncing');
+    const encoded = encodeURIComponent(JSON.stringify({eventos,nextId}));
+    await fetch(SHEETS_URL+'?action=set&data='+encoded, {mode:'no-cors'});
+    setSyncStatus('ok');
+  }catch(e){setSyncStatus('err');}
+  syncando=false;
+}
+
+// ─── CONFLICT ─────────────────────────────────────────────────────────────────
+function conflict(cons,tipo,ini,exId,uni){
+  const d=parseD(ini),y=d.getFullYear(),mo=d.getMonth();
+  return eventos.filter(e=>{
+    if(e.id===exId||e.consultor!==cons||e.tipo!==tipo||e.unidade!==uni)return false;
+    const ed=parseD(e.inicio);
+    return tipo==='mensal'
+      ?(ed.getFullYear()===y&&ed.getMonth()===mo)
+      :(ed.getFullYear()===y&&Math.floor(ed.getMonth()/6)===Math.floor(mo/6));
+  });
+}
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+function stats(evts){
+  const all=evts;
+  const active=evts.filter(e=>e.status!=='cancelado');
+  const tot=active.length,real=active.filter(e=>e.status==='realizado').length;
+  const totM=active.filter(e=>e.tipo==='mensal').length,realM=active.filter(e=>e.tipo==='mensal'&&e.status==='realizado').length;
+  const totA=active.filter(e=>e.tipo==='auditoria').length,realA=active.filter(e=>e.tipo==='auditoria'&&e.status==='realizado').length;
+  const canc=all.filter(e=>e.status==='cancelado').length;
+  const cancM=all.filter(e=>e.status==='cancelado'&&e.tipo==='mensal').length;
+  const cancA=all.filter(e=>e.status==='cancelado'&&e.tipo==='auditoria').length;
+  const totAgend=all.filter(e=>e.status==='agendado'||e.status==='cancelado').length;
+  const pctCanc=totAgend?Math.round(canc/totAgend*100):0;
+  return{tot,real,totM,realM,totA,realA,canc,cancM,cancA,pctCanc,tx:tot?Math.round(real/tot*100):0,txM:totM?Math.round(realM/totM*100):0,txA:totA?Math.round(realA/totA*100):0};
+}
+
+// ─── METRICS HTML ─────────────────────────────────────────────────────────────
+function hMetrics(evts){
+  const g=stats(evts);
+  const cancCard=g.canc>0
+    ?`<div class="metric-card-alert"><div class="metric-label" style="color:#7a1a1a">&#9888; Canceladas</div><div class="metric-val" style="color:#c0392b;font-size:22px">${g.canc} <span style="font-size:14px;font-weight:500">(${g.pctCanc}% cancel.)</span></div><div class="metric-sub" style="color:#7a1a1a">${g.cancM} mensal · ${g.cancA} audit.</div></div>`
+    :`<div class="metric-card"><div class="metric-label">Canceladas</div><div class="metric-val" style="color:var(--text3)">0</div><div class="metric-sub">nenhuma</div></div>`;
+  return `<div class="section-label">Taxa de realização — time</div>
+  <div class="metrics-grid">
+    <div class="metric-card"><div class="metric-label">Taxa geral</div><div class="metric-val" style="color:${txCol(g.tx)}">${g.tx}%</div><div class="metric-sub">${g.real} de ${g.tot}</div></div>
+    <div class="metric-card"><div class="metric-label">Reunião mensal</div><div class="metric-val" style="color:#1a4f82">${g.txM}%</div><div class="metric-sub">${g.realM}/${g.totM}</div></div>
+    <div class="metric-card"><div class="metric-label">Auditoria</div><div class="metric-val" style="color:#1a5216">${g.txA}%</div><div class="metric-sub">${g.realA}/${g.totA}</div></div>
+    <div class="metric-card"><div class="metric-label">Pendentes</div><div class="metric-val">${g.tot-g.real}</div><div class="metric-sub">a realizar</div></div>
+    ${cancCard}
+  </div>`;
+}
+
+// ─── TRANSPORTE SEMANAL ───────────────────────────────────────────────────────
+function hTransporte() {
+  const TRANSP = {
+    aviao:                {icon:'✈', label:'Avião',           color:'#1a4f82'},
+    carro_proprio:        {icon:'🚗', label:'Carro próprio',  color:'#1e5c1a'},
+    frota:                {icon:'🚙', label:'Frota',           color:'#3d2e8f'},
+    onibus:               {icon:'🚌', label:'Ônibus',          color:'#7a4800'},
+
+    transporte_aplicativo:{icon:'📱', label:'Aplicativo',      color:'#0e4f40'},
+  };
+
+  // Current week bounds (Mon-Sun)
+  const now = new Date();
+  const dow = now.getDay() === 0 ? 6 : now.getDay() - 1; // 0=Mon
+  const weekStart = new Date(now); weekStart.setDate(now.getDate() - dow); weekStart.setHours(0,0,0,0);
+  const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6); weekEnd.setHours(23,59,59,999);
+  const ws = weekStart.toISOString().slice(0,10);
+  const we = weekEnd.toISOString().slice(0,10);
+
+  // All events with transport
+  const withTransp = eventos.filter(e => e.transporte && e.status !== 'cancelado');
+  // This week
+  const thisWeek = withTransp.filter(e => e.inicio >= ws && e.inicio <= we);
+
+  // Count totals and weekly (show all types always)
+  const totals = {}, weekly = {};
+  withTransp.forEach(e => { totals[e.transporte] = (totals[e.transporte]||0)+1; });
+  thisWeek.forEach(e => { weekly[e.transporte] = (weekly[e.transporte]||0)+1; });
+
+  const sorted = Object.keys(TRANSP);
+
+  const cards = sorted.map(k => {
+    const {icon, label, color} = TRANSP[k];
+    const tot = totals[k] || 0;
+    const wk = weekly[k] || 0;
+    return `<div class="transp-card">
+      <div class="transp-card-icon">${icon}</div>
+      <div class="transp-card-val" style="color:${color}">${tot}</div>
+      <div class="transp-card-lbl">${label}</div>
+      <div class="transp-card-week">Esta semana: ${wk}</div>
+    </div>`;
+  }).join('');
+
+  const weekLabel = `${weekStart.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})} – ${weekEnd.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}`;
+  return `<div class="transp-section">
+    <div class="section-label">Transporte utilizado · semana ${weekLabel}</div>
+    <div class="transp-grid">${cards}</div>
+  </div>`;
+}
+
+// ─── GANTT HTML ───────────────────────────────────────────────────────────────
+function hGantt(y,m,fc,ft,editFn,newFn,showFc,zoom=100){
+  const days=dim(y,m);
+  const ef=eventos.filter(e=>{
+    const d=parseD(e.inicio);
+    if(d.getFullYear()!==y||d.getMonth()!==m)return false;
+    if(fc!=='todos'&&e.consultor!==fc)return false;
+    if(ft!=='todos'&&e.tipo!==ft)return false;
+    return true;
+  });
+  const cv=fc==='todos'?CONS:[fc];
+  const dayH=Array.from({length:days},(_,i)=>{const dw=new Date(y,m,i+1).getDay(),w=dw===0||dw===6||isFeriado(y,m,i+1);return`<div class="g-day-hdr${w?' wknd':''}">${i+1}</div>`;}).join('');
+  const rows=cv.length?cv.map(c=>{
+    const ec=ef.filter(e=>e.consultor===c);
+    // células de fundo (fins de semana + estrutura)
+    const cells=Array.from({length:days},(_,i)=>{
+      const dw=new Date(y,m,i+1).getDay(),w=dw===0||dw===6||isFeriado(y,m,i+1);
+      return`<div class="g-cell${w?' wknd':''}"></div>`;
+    }).join('');
+    // blocos com suporte a múltiplos eventos sobrepostos (lane stacking)
+    const LANE_H=26, LANE_GAP=3, LANE_TOP=6;
+    // calcular lane de cada evento para evitar sobreposição visual
+    const laneEvts=ec.map(evt=>{
+      const startD=parseD(evt.inicio),endD=parseD(evt.fim);
+      const monthStart=new Date(y,m,1),monthEnd=new Date(y,m,days);
+      const clampStart=startD<monthStart?monthStart:startD;
+      const clampEnd=endD>monthEnd?monthEnd:endD;
+      const startIdx=clampStart.getDate()-1;
+      const endIdx=clampEnd.getDate()-1;
+      return{evt,startIdx,endIdx};
+    });
+    // atribuir lane: menor lane livre que não conflita
+    const assigned=[];
+    laneEvts.forEach(item=>{
+      let lane=0;
+      while(assigned.some(a=>a.lane===lane&&a.endIdx>=item.startIdx&&a.startIdx<=item.endIdx)) lane++;
+      assigned.push({...item,lane});
+    });
+    const totalLanes=assigned.length?Math.max(...assigned.map(a=>a.lane))+1:1;
+    const rowH=LANE_TOP*2+totalLanes*LANE_H+(totalLanes-1)*LANE_GAP;
+    const blocks=assigned.map(({evt,startIdx,endIdx,lane})=>{ 
+      const span=endIdx-startIdx+1;
+      const dayW=Math.round(40*zoom/100);
+      const leftPx2=startIdx*dayW;
+      const widthPx2=span*dayW-4;
+      const topPx=LANE_TOP+lane*(LANE_H+LANE_GAP);
+      let bg,tc,strikeStyle='';
+      if(evt.status==='cancelado'){bg='#c0392b';tc='#ffffff';strikeStyle='text-decoration:line-through;opacity:0.85';}
+      else if(evt.tipo==='mensal'){bg=evt.status==='realizado'?'#1a4f82':'#deeaf7';tc=evt.status==='realizado'?'#ffffff':'#1a4f82';}
+      else if(evt.tipo==='treinamento'){bg=evt.status==='realizado'?'#c2410c':'#ffedd5';tc=evt.status==='realizado'?'#ffffff':'#c2410c';}
+      else if(evt.tipo==='home_office'){bg=evt.status==='realizado'?'#6b21a8':'#ede9fe';tc=evt.status==='realizado'?'#ffffff':'#6b21a8';}
+      else if(evt.tipo==='ferias'){bg=evt.status==='realizado'?'#0e7490':'#cffafe';tc=evt.status==='realizado'?'#ffffff':'#0e7490';}
+      else if(evt.tipo==='banco_horas'){bg=evt.status==='realizado'?'#4a4a4a':'#e5e5e5';tc=evt.status==='realizado'?'#ffffff':'#4a4a4a';}
+      else{bg=evt.status==='realizado'?'#2d6a27':'#c8e8c0';tc=evt.status==='realizado'?'#ffffff':'#1a5216';}
+      const _city=getCity(evt.unidade);const nm=_city?_city+' · '+evt.unidade:evt.unidade;
+      return`<div class="g-block" style="left:${leftPx2+2}px;width:${widthPx2}px;top:${topPx}px;background:${bg};color:${tc};${strikeStyle}" onclick="${editFn}(${evt.id})" title="${evt.unidade}${getCity(evt.unidade)?' · '+getCity(evt.unidade):''} | ${evt.tipo} | ${evt.status}${evt.status==='cancelado'?' ⚠ CANCELADO'+(evt.motivoCancelamento?' · '+evt.motivoCancelamento:''):''}">${evt.status==='cancelado'?'✕ ':''} ${nm}</div>`;
+    }).join('');
+    const cellsWithH=Array.from({length:days},(_,i)=>{
+      const dw=new Date(y,m,i+1).getDay(),w=dw===0||dw===6||isFeriado(y,m,i+1);
+      return`<div class="g-cell${w?' wknd':''}" style="min-height:${rowH}px"></div>`;
+    }).join('');
+    const nameHtml=`<div style="font-size:13px;font-weight:600">${c}</div>`;
+    return`<div class="g-row" style="min-height:${rowH}px"><div class="g-name" style="min-height:${rowH}px">${nameHtml}</div><div class="g-cells" style="min-height:${rowH}px">${cellsWithH}${blocks}</div></div>`;
+  }).join(''):'<div class="empty">Nenhuma visita neste período.</div>';
+
+  const isG=editFn==='gEdit';
+  const prevFn=isG?'gPrev':'cPrev',nextFn=isG?'gNext':'cNext';
+  const ftChange=isG?`gFt=this.value;rG()`:`cFt=this.value;rC()`;
+  const fcOpts=CONS.map(c=>`<option value="${c}" ${fc===c?'selected':''}>${c}</option>`).join('');
+
+  const zoomId=editFn==='gEdit'?'gZoomRange':'cZoomRange';
+  const zoomFn=editFn==='gEdit'?'gZoom=+this.value;rG()':'cZoom=+this.value;rC()';
+  return `<div class="zoom-bar">
+    <label>📅 Largura dos dias: <strong>${Math.round(40*zoom/100)}px/dia</strong></label>
+    <input id="${zoomId}" type="range" min="25" max="200" step="5" value="${zoom}" oninput="${zoomFn}">
+  </div>
+  <div class="toolbar">
+    <div class="month-nav">
+      <button class="btn" onclick="${prevFn}()">&#8592;</button>
+      <div class="month-label">${MONTHS[m]} ${y}</div>
+      <button class="btn" onclick="${nextFn}()">&#8594;</button>
+    </div>
+    ${showFc?`<select onchange="gFc=this.value;rG()"><option value="todos">Todos os consultores</option>${fcOpts}</select>`:''}
+    <select onchange="${ftChange}">
+      <option value="todos">Todos os tipos</option>
+      <option value="mensal" ${ft==='mensal'?'selected':''}>Reunião mensal</option>
+      <option value="auditoria" ${ft==='auditoria'?'selected':''}>Auditoria</option>
+    </select>
+    <button class="btn btn-primary" onclick="${newFn}()">+ Nova visita</button>
+  </div>
+  <div class="legend">
+    <span style="display:flex;align-items:center;gap:5px"><span class="ldot" style="background:#1a4f82"></span>Mensal realizado</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="ldot" style="background:#deeaf7"></span>Mensal agendado</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="ldot" style="background:#2d6a27"></span>Auditoria realizada</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="ldot" style="background:#c8e8c0"></span>Auditoria agendada</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="ldot" style="background:#c2410c"></span>Treinamento</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="ldot" style="background:#6b21a8"></span>Home office</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="ldot" style="background:#0e7490"></span>Férias</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="ldot" style="background:#4a4a4a"></span>Banco de horas</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="ldot" style="background:#c0392b"></span>Cancelada / Remarcada</span>
+  </div>
+  <div class="gantt-wrap"><div class="gantt-inner" style="--day-w:${Math.round(40*zoom/100)}px;width:${days*Math.round(40*zoom/100)}px">
+    <div class="gantt-head"><div class="g-name-col">Consultor</div><div class="g-days-row">${dayH}</div></div>
+    ${rows}
+  </div></div>`;
+}
+
+
+// ─── COBERTURA HTML ───────────────────────────────────────────────────────────
+function hCobertura() {
+  const tipos = [
+    {key:'auditoria', label:'Auditoria', color:'#1e5c1a', bgV:'#d8f0d0', bgP:'#fee2e2'},
+    {key:'mensal',    label:'Reunião Mensal', color:'#1a4f82', bgV:'#deeaf7', bgP:'#fff3cd'},
+  ];
+
+  const thStyle = `padding:8px 10px;text-align:left;font-size:11px;font-weight:600;color:var(--text2);border-bottom:2px solid var(--border);white-space:nowrap;position:sticky;top:0;background:var(--surface2)`;
+  const tdBase = `padding:7px 10px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:top`;
+
+  let html = `<div style="margin-top:12px">
+    <div class="section-label">Cobertura de visitas por consultor</div>`;
+
+  tipos.forEach(({key, label, color, bgV, bgP}) => {
+    html += `<div style="margin-bottom:28px">
+      <div style="font-size:13px;font-weight:600;color:${color};margin-bottom:8px;padding:6px 10px;background:${bgV};border-radius:var(--r);display:inline-block">${label}</div>
+      <div style="overflow:auto;border:1px solid var(--border);border-radius:var(--r)">
+      <table style="width:100%;border-collapse:collapse;background:var(--surface)">
+        <thead><tr>
+          <th style="${thStyle}">Consultor</th>
+          <th style="${thStyle};color:${color}">Visitadas</th>
+          <th style="${thStyle};color:#c0392b">Pendentes</th>
+          <th style="${thStyle}">Total carteira</th>
+          <th style="${thStyle}">% Cobertura</th>
+          <th style="${thStyle}">Unidades visitadas</th>
+          <th style="${thStyle}">Unidades pendentes</th>
+        </tr></thead>
+        <tbody>`;
+
+    CONS.forEach((c, ci) => {
+      const carteira = (UNI[c] || []);
+      if (!carteira.length) return;
+
+      // Visited = has at least one realizado event of this type
+      const visitedUnits = new Set(
+        eventos.filter(e => e.consultor===c && e.tipo===key && e.status==='realizado')
+               .map(e => e.unidade)
+      );
+      const pendingUnits = carteira.filter(u => !visitedUnits.has(u));
+      const visited = visitedUnits.size;
+      const pending = pendingUnits.length;
+      const total = carteira.length;
+      const pct = total ? Math.round(visited/total*100) : 0;
+      const col = pct>=70?'#1e5c1a':pct>=40?'#7a4800':'#c0392b';
+      const rowBg = ci%2===0?'var(--surface)':'var(--surface2)';
+
+      const visitedList = [...visitedUnits].sort().map(u => {
+        const city = getCity(u);
+        const short = u.split(' - ').slice(1).join(' - ')||u;
+        return `<div style="font-size:11px;color:#1e5c1a;line-height:1.7">${city?city+' · ':''}${short}</div>`;
+      }).join('');
+
+      const pendingList = pendingUnits.sort().map(u => {
+        const city = getCity(u);
+        const short = u.split(' - ').slice(1).join(' - ')||u;
+        return `<div style="font-size:11px;color:#c0392b;line-height:1.7">${city?city+' · ':''}${short}</div>`;
+      }).join('');
+
+      html += `<tr style="background:${rowBg}">
+        <td style="${tdBase};font-weight:500">${c}</td>
+        <td style="${tdBase};text-align:center;font-weight:700;color:${color}">${visited}</td>
+        <td style="${tdBase};text-align:center;font-weight:700;color:#c0392b">${pending}</td>
+        <td style="${tdBase};text-align:center;color:var(--text2)">${total}</td>
+        <td style="${tdBase};text-align:center">
+          <span style="font-weight:700;color:${col}">${pct}%</span>
+          <div style="margin-top:3px;height:4px;background:var(--border);border-radius:2px;width:60px">
+            <div style="height:4px;border-radius:2px;background:${col};width:${pct}%"></div>
+          </div>
+        </td>
+        <td style="${tdBase};max-width:220px">${visitedList||'<span style="color:var(--text3);font-size:11px">Nenhuma</span>'}</td>
+        <td style="${tdBase};max-width:220px">${pendingList||'<span style="color:var(--text3);font-size:11px">Todas visitadas ✓</span>'}</td>
+      </tr>`;
+    });
+
+    html += `</tbody></table></div></div>`;
+  });
+
+  html += `</div>`;
+  return html;
+}
+
+// ─── MAPA HTML ────────────────────────────────────────────────────────────────
+const CONS_COLORS_MAP = [
+  '#1a4f82','#1e5c1a','#3d2e8f','#c87400','#c0392b',
+  '#0e4f40','#7a1a5a','#5a3a00','#004f6e','#6b2fa0','#1a5a3a'
+];
+
+const CITY_COORDS = {
+  '13 De Maio': [-23.55, -46.63],
+  'Alda Salomão': [-23.55, -46.63],
+  'Altino Arantes': [-23.55, -46.63],
+  'Alto Ipiranga': [-23.59, -46.6],
+  'Alto Maron': [-14.86, -40.84],
+  'Alvinópolis': [-20.111, -43.055],
+  'Amanda': [-23.55, -46.63],
+  'Americana 1': [-22.739, -47.332],
+  'Americana 2': [-22.739, -47.332],
+  'Amizade': [-23.55, -46.63],
+  'Amparo': [-22.706, -46.77],
+  'Anacé': [-3.526, -39.447],
+  'Analice': [-23.55, -46.63],
+  'Anália Franco': [-23.538, -46.574],
+  'Araraquara': [-21.794, -48.176],
+  'Araraquara Centro': [-21.794, -48.176],
+  'Araras Centro': [-22.357, -47.384],
+  'Araxá': [-19.594, -46.941],
+  'Arena': [-23.54, -46.73],
+  'Artur Alvim': [-23.544, -46.486],
+  'Artur Nogueira': [-22.573, -47.173],
+  'Arujá': [-23.397, -46.319],
+  'Assai Guarujá': [-23.99, -46.26],
+  'Assai João Dias': [-23.67, -46.73],
+  'Assai Penha': [-23.52, -46.55],
+  'Assis': [-22.661, -50.412],
+  'Atibaia': [-23.117, -46.551],
+  'Atibaia Cerejeiras': [-23.117, -46.551],
+  'Aviação': [-23.692, -46.574],
+  'Barcelona': [-23.55, -46.63],
+  'Bariri': [-22.074, -48.738],
+  'Barra Bonita': [-22.506, -48.556],
+  'Baruel': [-23.46, -46.53],
+  'Barueri Centro': [-23.504, -46.876],
+  'Bebedouro': [-20.949, -48.479],
+  'Bela Vista': [-23.56, -46.649],
+  'Belas Artes': [-23.56, -46.65],
+  'Belenzinho': [-23.54, -46.579],
+  'Belford Roxo': [-22.759, -43.399],
+  'Birigui Moderno': [-21.287, -50.34],
+  'Boa Esperança': [-23.55, -46.63],
+  'Boa Vista': [-23.55, -46.63],
+  'Boituva': [-23.283, -47.674],
+  'Bonsucesso': [-23.55, -46.63],
+  'Boqueirão': [-25.43, -49.28],
+  'Botucatu': [-22.887, -48.445],
+  'Boturussu': [-23.514, -46.483],
+  'Boulevard Jacarei': [-23.306, -45.966],
+  'Bragança Paulista': [-22.952, -46.541],
+  'Brasilândia': [-23.414, -46.691],
+  'Brás Cubas': [-23.435, -46.173],
+  'CT SP Vila Nilo': [-23.55, -46.63],
+  'Cabo Frio': [-22.879, -42.019],
+  'Caiçara': [-23.55, -46.63],
+  'Cajamar': [-23.358, -46.875],
+  'Cajazeiras': [-23.55, -46.63],
+  'Cambuci': [-23.569, -46.626],
+  'Cambui': [-22.9, -47.06],
+  'Campestre': [-23.55, -46.63],
+  'Campo Grande': [-23.68, -46.77],
+  'Campo Grande 2': [-23.68, -46.77],
+  'Campo Limpo': [-23.644, -46.761],
+  'Campos Elíseos': [-23.539, -46.636],
+  'Campos RJ': [-21.754, -41.324],
+  'Canal': [-23.55, -46.63],
+  'Canal 1': [-23.55, -46.63],
+  'Canal 5': [-23.55, -46.63],
+  'Canto do Mar': [-23.55, -46.63],
+  'Capela': [-23.55, -46.63],
+  'Capitão Francisco': [-23.55, -46.63],
+  'Capão Bonito': [-24.005, -48.349],
+  'Capão Canoa': [-29.748, -50.004],
+  'Capão Redondo': [-23.67, -46.76],
+  'Caraguá': [-23.62, -45.41],
+  'Carlos Lacerda': [-23.55, -46.63],
+  'Carrão': [-23.544, -46.52],
+  'Casa Verde Alta': [-23.491, -46.671],
+  'Castelo': [-23.55, -46.63],
+  'Castelo Branco': [-23.55, -46.73],
+  'Cavaleiros': [-22.37, -41.78],
+  'Caxias RJ': [-22.806, -43.311],
+  'Caçapava': [-23.101, -45.707],
+  'Cerquilho': [-23.171, -47.746],
+  'Chácara Antonieta': [-23.55, -46.63],
+  'Chácara Primavera': [-22.9, -47.06],
+  'Cianorte': [-23.661, -52.605],
+  'Cidade Das Artes': [-23.55, -46.63],
+  'Cidade Jardim': [-23.58, -46.7],
+  'Cidade Nova': [-23.55, -46.63],
+  'Cocaia Guarulhos': [-23.463, -46.533],
+  'Colina': [-20.716, -48.544],
+  'Coliseu': [-23.31, -51.16],
+  'Colombo': [-25.292, -49.224],
+  'Concordia': [-27.23, -52.02],
+  'Condado': [-23.55, -46.63],
+  'Conselheiro Nébias': [-23.55, -46.63],
+  'Cosmópolis': [-22.646, -47.197],
+  'Cotia': [-23.604, -46.919],
+  'Cruzeiro do Sul': [-23.55, -46.63],
+  'Cubatão Centro': [-23.898, -46.426],
+  'Cumbica': [-23.409, -46.466],
+  'Curuça': [-23.59, -46.465],
+  'DIP Guará': [-15.83, -47.98],
+  'Daniel Fonseca': [-18.92, -48.28],
+  'Diadema Centro': [-23.686, -46.623],
+  'Diadema Eldorado': [-23.686, -46.623],
+  'Diadema Nogueira': [-23.686, -46.623],
+  'Diadema Serraria': [-23.686, -46.623],
+  'Divinópolis': [-20.139, -44.883],
+  'Divisa': [-23.55, -46.63],
+  'Dois Córregos': [-22.37, -48.376],
+  'Dois de Dezembro': [-22.91, -47.06],
+  'Dom Aguirre': [-23.51, -47.45],
+  'Dom Antônio': [-23.55, -46.63],
+  'Dom Nery': [-23.55, -46.63],
+  'Dom Pedro': [-23.55, -46.63],
+  'Dom Pedro 1': [-23.55, -46.63],
+  'Duque De Caxias': [-22.786, -43.312],
+  'Eng. Goulart': [-23.51, -46.478],
+  'Enseada': [-23.62, -45.41],
+  'Estação': [-23.55, -46.63],
+  'Faria Lima': [-23.57, -46.69],
+  'Ferraz Centro': [-23.536, -46.37],
+  'Ferrazopolis': [-23.507, -46.339],
+  'Ferroviários': [-23.55, -46.63],
+  'Fortaleza': [-3.717, -38.543],
+  'Francisco Monteiro': [-23.55, -46.63],
+  'General': [-23.55, -46.63],
+  'Georgina': [-23.55, -46.63],
+  'Gianetti': [-23.55, -46.63],
+  'Glicério': [-23.55, -46.63],
+  'Good Bom Amanda': [-23.55, -46.63],
+  'Grajaú': [-23.73, -46.681],
+  'Green Village': [-23.013, -47.109],
+  'Guaira': [-20.319, -48.312],
+  'Guarapuava': [-25.396, -51.458],
+  'Guararapes': [-21.26, -50.641],
+  'Guaxupé': [-21.304, -46.711],
+  'Guilhermina': [-23.574, -46.499],
+  'Iacanga': [-21.885, -49.021],
+  'Ibiporã': [-23.268, -51.047],
+  'Ibiti': [-23.55, -46.63],
+  'Ibitinga': [-21.758, -48.83],
+  'Ibiuna': [-23.657, -47.222],
+  'Indaiatuba': [-23.09, -47.219],
+  'Indaiá': [-19.98, -45.596],
+  'Independência APGyn': [-23.55, -46.63],
+  'Inocencio Serafico': [-23.55, -46.63],
+  'Intercontinental': [-23.55, -46.63],
+  'Ipanema Sorocaba': [-23.501, -47.458],
+  'Iracemápolis': [-22.58, -47.518],
+  'Itaboraí': [-22.767, -42.858],
+  'Itajaí': [-26.908, -48.662],
+  'Italo Adami': [-22.952, -46.541],
+  'Itapetininga': [-23.592, -48.053],
+  'Itapira': [-22.436, -46.823],
+  'Itatiba': [-23.003, -46.839],
+  'Itinga': [-23.676, -46.75],
+  'Itoupava Norte': [-26.944, -49.086],
+  'Itu': [-23.264, -47.299],
+  'Itupeva': [-23.155, -47.058],
+  'Jaboticabal': [-21.255, -48.319],
+  'Jaguariuna': [-22.702, -46.989],
+  'Jaguaré': [-23.531, -46.774],
+  'Jaiara': [-18.92, -48.28],
+  'Jamaica': [-23.605, -46.713],
+  'Jaraguá': [-23.45, -46.76],
+  'Jardim Brasil': [-23.55, -46.63],
+  'Jardim Do Lago': [-23.55, -46.63],
+  'Jardim Dona Benta': [-23.67, -46.77],
+  'Jardim Hubert': [-23.55, -46.63],
+  'Jardim Jatobá': [-23.55, -46.63],
+  'Jardim Paulista': [-23.576, -46.669],
+  'Jardim Penha': [-23.52, -46.55],
+  'Jardim Robru': [-23.589, -46.429],
+  'Jardim Rosemary': [-23.55, -46.63],
+  'Jardim São Francisco': [-23.55, -46.63],
+  'Jardim Vilage': [-23.55, -46.63],
+  'Jardim Zaira': [-23.63, -46.52],
+  'Jardinopolis': [-21.016, -47.768],
+  'Jaçanã': [-23.462, -46.583],
+  'Jequirituba': [-22.37, -47.38],
+  'Jj Lacerda': [-23.55, -46.63],
+  'José Paulino': [-23.55, -46.63],
+  'Julio de Mesquita': [-22.9, -47.06],
+  'Jundiaí Vila Agricola': [-23.186, -46.884],
+  'Jussara': [-23.55, -46.63],
+  'Lago Do Silverio': [-23.55, -46.63],
+  'Laguna': [-23.55, -46.63],
+  'Lajeado': [-23.552, -46.518],
+  'Lapa': [-23.525, -46.702],
+  'Leme': [-22.186, -47.391],
+  'Lençóis Paulista': [-22.598, -48.8],
+  'Leste Universitário': [-18.92, -48.28],
+  'Limeira Centro': [-22.564, -47.402],
+  'Londrina Centro': [-23.31, -51.163],
+  'Lorena': [-22.733, -45.124],
+  'Macedo': [-23.46, -46.53],
+  'Marajoara': [-23.666, -46.683],
+  'Marechal Tito': [-23.532, -46.401],
+  'Maria Beatriz': [-23.55, -46.63],
+  'Maria Rosa': [-23.55, -46.63],
+  'Marialva': [-23.488, -51.798],
+  'Marincek': [-22.91, -47.06],
+  'Maringá': [-23.427, -51.938],
+  'Martim Francisco': [-23.55, -46.63],
+  'Martins Coelho': [-23.55, -46.63],
+  'Matão': [-21.604, -48.365],
+  'Maysa': [-22.37, -47.38],
+  'Mega Polo': [-23.55, -46.63],
+  'Miguel Yunes': [-23.55, -46.63],
+  'Mirassol': [-20.82, -49.505],
+  'Mococa': [-21.476, -47.002],
+  'Mogi Guaçu': [-22.373, -46.943],
+  'Mogi Mirim': [-22.432, -46.958],
+  'Monte Mor Centro': [-22.943, -47.318],
+  'Montes Claros': [-16.729, -43.862],
+  'Morada Do Sol': [-20.82, -49.38],
+  'Moraes Salles': [-22.37, -47.38],
+  'Morato Centro': [-23.36, -46.88],
+  'Natal': [-5.779, -35.201],
+  'Naviraí': [-23.068, -54.192],
+  'Nordestina': [-23.55, -46.63],
+  'Nova Alvorada': [-23.55, -46.63],
+  'Nova Andradina': [-22.233, -53.344],
+  'Nova Esperança': [-23.18, -52.21],
+  'Nova Europa': [-21.777, -48.566],
+  'Nova Friburgo': [-22.281, -42.531],
+  'Nova Marília': [-22.21, -49.94],
+  'Nova Mirim': [-23.55, -46.63],
+  'Nova Odessa': [-22.782, -47.294],
+  'Nova Suiça': [-23.55, -46.63],
+  'Novo Horizonte': [-21.463, -49.218],
+  'Novo Mundo': [-23.55, -46.63],
+  'Nóbrega': [-23.55, -46.63],
+  'Osasco Centro': [-23.533, -46.792],
+  'Osasco Medici': [-23.533, -46.792],
+  'Ouro Preto': [-20.386, -43.504],
+  'Oziel': [-22.9, -47.06],
+  'Padre Anchieta': [-23.555, -46.636],
+  'Pague Menos Limeira': [-22.56, -47.4],
+  'Pague Menos Sumaré': [-22.823, -47.266],
+  'Pampulha': [-19.868, -43.969],
+  'Pannuzio': [-22.37, -47.38],
+  'Parada 15 de Novembro': [-23.55, -46.63],
+  'Paranavaí': [-23.074, -52.466],
+  'Paris': [-23.55, -46.63],
+  'Parque Amazônia': [-16.7, -49.29],
+  'Parque Das Nações': [-23.55, -46.63],
+  'Parque Independência': [-23.602, -46.614],
+  'Parque Industrial': [-23.55, -46.63],
+  'Passos': [-20.718, -46.609],
+  'Paulicéia': [-21.31, -51.83],
+  'Paulista Valinhos': [-22.974, -46.996],
+  'Paulínia': [-22.761, -47.153],
+  'Pedreira': [-22.84, -46.905],
+  'Penha': [-23.522, -46.547],
+  'Pereira Barreto': [-20.639, -51.107],
+  'Perimetral': [-23.55, -46.63],
+  'Peruibe': [-24.32, -47.001],
+  'Perus': [-23.399, -46.753],
+  'Perus Recanto': [-23.399, -46.753],
+  'Petrolina': [-9.399, -40.502],
+  'Picerno': [-23.55, -46.63],
+  'Pico': [-23.55, -46.63],
+  'Pimentas': [-23.416, -46.355],
+  'Pinda Simpatia': [-22.924, -45.462],
+  'Pinhal': [-22.18, -46.74],
+  'Piracicaba Centro': [-22.725, -47.649],
+  'Pirajussara': [-23.634, -46.746],
+  'Pirassununga': [-21.998, -47.425],
+  'Pompeia Mall Mirandópolis': [-23.55, -46.63],
+  'Ponte Grande': [-23.44, -46.321],
+  'Porto Ferreira': [-21.851, -47.479],
+  'Porto Real': [-22.416, -44.29],
+  'Poá Calmon': [-23.531, -46.344],
+  'Poços De Caldas': [-21.787, -46.561],
+  'Presidente Dutra': [-23.549, -46.624],
+  'Presidente Vargas': [-23.538, -46.634],
+  'Prestes Maia': [-23.55, -46.63],
+  'Prudenshopping': [-22.13, -51.39],
+  'Queimados': [-22.716, -43.558],
+  'Recanto Campo Belo': [-23.63, -46.67],
+  'Recanto Fortuna': [-23.55, -46.63],
+  'Redenção': [-23.55, -46.63],
+  'Redinha': [-5.779, -35.201],
+  'República': [-23.54, -46.64],
+  'Residencial Cocaia': [-23.72, -46.67],
+  'Ressaca': [-23.55, -46.63],
+  'Retiro': [-23.55, -46.63],
+  'Rio Claro': [-22.415, -47.561],
+  'Rio das Pedras': [-22.842, -47.61],
+  'Roldão Capitão João': [-23.55, -46.63],
+  'Roldão Mogi Guaçu': [-22.373, -46.943],
+  'Roldão Valinhos': [-22.974, -46.996],
+  'Roldão Vila Ema': [-23.55, -46.63],
+  'Rondon': [-23.55, -46.63],
+  'Rosamélia': [-23.55, -46.63],
+  'Rosolem': [-23.55, -46.63],
+  'Ruy Rodrigues': [-23.55, -46.63],
+  'SBC Castelo Branco': [-23.658, -46.566],
+  'SBC Galvão Bueno': [-23.658, -46.566],
+  'SBC dos Casa': [-23.658, -46.566],
+  'SJ Rio Preto Centro': [-20.82, -49.38],
+  'SJC América': [-23.179, -45.884],
+  'SJC Centro': [-23.179, -45.884],
+  'SJC Ferradura': [-23.179, -45.884],
+  'SJC Satélite': [-23.179, -45.884],
+  'SJC Vista Verde': [-23.179, -45.884],
+  'Saburo Akamine': [-23.55, -46.63],
+  'Salgado Filho': [-23.55, -46.63],
+  'Salto': [-23.201, -47.294],
+  'Santa Barbara': [-22.75, -47.41],
+  'Santa Barbara 2': [-22.754, -47.414],
+  'Santa Mena': [-23.55, -46.63],
+  'Santa Paula': [-23.55, -46.63],
+  'Santa Rita': [-23.55, -46.63],
+  'Santa Terezinha': [-23.55, -46.63],
+  'Santana': [-23.501, -46.628],
+  'Santo Amaro': [-23.654, -46.701],
+  'Sapopemba': [-23.586, -46.478],
+  'Saudade': [-23.55, -46.63],
+  'Saúde': [-23.616, -46.636],
+  'Sbc Planalto': [-23.658, -46.566],
+  'Sbc Taboão': [-23.658, -46.566],
+  'Select Brasil': [-23.55, -46.63],
+  'Select Brasil 500': [-23.55, -46.63],
+  'Select Recife': [-8.054, -34.881],
+  'Setor Oeste': [-16.703, -49.283],
+  'Silverstone': [-23.55, -46.63],
+  'Sjc Monte Castelo': [-23.179, -45.884],
+  'Sjc Morumbi': [-23.179, -45.884],
+  'Soberana': [-23.55, -46.63],
+  'Somenzari': [-22.37, -47.38],
+  'Sorocaba Aeroporto': [-23.501, -47.458],
+  'Spazio Ouro Verde': [-23.1, -47.22],
+  'Suaçuna': [-23.547, -46.694],
+  'Sumarezinho': [-23.55, -46.69],
+  'Sumaré Centro': [-22.823, -47.266],
+  'Suzano Centro': [-23.543, -46.311],
+  'São Caetano Do Sul': [-23.621, -46.566],
+  'São Gonçalo': [-22.827, -43.054],
+  'São Joaquim da Barra': [-20.58, -47.856],
+  'São Jorge': [-23.55, -46.63],
+  'São João': [-23.55, -46.63],
+  'São Luis': [-23.55, -46.63],
+  'São Marcos': [-23.55, -46.63],
+  'São Rafael': [-23.62, -46.48],
+  'São Rafael ZL': [-23.62, -46.48],
+  'São Vicente': [-23.96, -46.388],
+  'São Vicente Centro': [-23.96, -46.388],
+  'São Vito': [-23.55, -46.63],
+  'Taboão Da Serra': [-23.603, -46.757],
+  'Taquaral': [-22.9, -47.06],
+  'Taquaritinga': [-21.408, -48.505],
+  'Tatui Centro': [-23.36, -47.856],
+  'Taubaté Centro': [-23.006, -45.556],
+  'Telêmaco Borba': [-24.326, -50.615],
+  'Tenda Itapetininga': [-23.592, -48.053],
+  'Tenda Matão': [-21.604, -48.365],
+  'Tenda Pinda': [-22.924, -45.462],
+  'Terra Preta': [-23.28, -46.71],
+  'Tibúrcio': [-23.55, -46.63],
+  'Tijuca': [-22.924, -43.235],
+  'Tranquilidade': [-23.55, -46.63],
+  'Tremembé': [-22.959, -45.554],
+  'Três Lagoas Centro': [-20.784, -51.701],
+  'Tucura': [-23.55, -46.63],
+  'Tucuruvi': [-23.476, -46.596],
+  'Tupi': [-23.551, -46.62],
+  'Tupã': [-21.935, -50.514],
+  'Unamar': [-22.721, -42.106],
+  'Unimart': [-22.9, -47.06],
+  'VCA Boa Vista': [-23.55, -46.63],
+  'Vale do Sol': [-23.55, -46.63],
+  'Valo Velho': [-23.722, -46.763],
+  'Varzea Centro': [-22.91, -47.06],
+  'Varzea Pacaembu': [-22.91, -47.06],
+  'Vazame': [-23.55, -46.63],
+  'Veloso': [-21.14, -47.99],
+  'Vera Cruz': [-22.21, -49.94],
+  'Via Norte': [-23.55, -46.63],
+  'Vianas': [-23.55, -46.63],
+  'Vicente De Carvalho': [-23.55, -46.63],
+  'Vila Antonieta': [-23.606, -46.504],
+  'Vila Antonio': [-23.55, -46.63],
+  'Vila Dirce': [-23.55, -46.63],
+  'Vila Esperança': [-23.55, -46.63],
+  'Vila Formosa': [-23.556, -46.526],
+  'Vila Imperio': [-23.55, -46.63],
+  'Vila Industrial': [-22.9, -47.06],
+  'Vila Ipiranga': [-23.594, -46.604],
+  'Vila Izabel': [-25.43, -49.28],
+  'Vila Lurdes': [-23.55, -46.63],
+  'Vila Luzita': [-23.65, -46.74],
+  'Vila Magini': [-22.37, -47.38],
+  'Vila Mascote': [-23.651, -46.663],
+  'Vila Monteiro': [-22.9, -47.06],
+  'Vila Nhocuné': [-23.546, -46.503],
+  'Vila Prado': [-22.9, -47.06],
+  'Vila Proost': [-22.91, -47.06],
+  'Vila Prudente': [-23.578, -46.557],
+  'Vila Rami': [-23.2, -46.88],
+  'Vila Ramos': [-23.55, -46.63],
+  'Vila Suissa': [-22.91, -47.06],
+  'Vila São José': [-23.55, -46.63],
+  'Vila Virginia': [-22.91, -47.06],
+  'Villa Flora': [-23.1, -47.22],
+  'Vinhedo': [-23.029, -46.975],
+  'Vista Alegre': [-23.55, -46.63],
+  'Votorantim': [-23.548, -47.438],
+  'Votuporanga': [-20.423, -49.971],
+  'Wanel Ville': [-23.55, -46.63],
+  'Washington Luiz': [-23.55, -46.63],
+  'Xv De Novembro': [-22.9, -47.06],
+  'Yervant': [-23.55, -46.63],
+  'Zanaga': [-22.37, -47.38],
+  'Zanchi': [-22.91, -47.06],
+};
+
+function extractCity(unidade) {
+  const p = unidade.indexOf(' - ');
+  if (p === -1) return unidade;
+  return unidade.slice(p + 3).trim();
+}
+
+function hMapa() {
+  return `<div style="margin-top:12px">
+    <div class="section-label">Mapa de visitas realizadas</div>
+    <div class="map-filter-bar">
+      <label>Consultor:</label>
+      <select id="map-fc" onchange="renderMap()">
+        <option value="todos">Todos</option>
+        ${CONS.map(c=>`<option value="${c}">${c}</option>`).join('')}
+      </select>
+    </div>
+    <div id="map-container"></div>
+    <div class="map-legend" id="map-legend"></div>
+    <div id="map-status" style="font-size:12px;color:var(--text3);margin-top:6px;text-align:center"></div>
+  </div>`;
+}
+
+let mapInstance = null;
+
+function renderMap() {
+  const fc = document.getElementById('map-fc')?.value || 'todos';
+  const statusEl = document.getElementById('map-status');
+  const legendEl = document.getElementById('map-legend');
+
+  if (mapInstance) { mapInstance.remove(); mapInstance = null; }
+
+  const evts = eventos.filter(e => e.status === 'realizado' && (fc === 'todos' || e.consultor === fc));
+
+  if (!evts.length) {
+    document.getElementById('map-container').innerHTML = '<div class="empty" style="padding:40px;text-align:center">Nenhuma visita realizada encontrada.</div>';
+    if (statusEl) statusEl.textContent = '';
+    if (legendEl) legendEl.innerHTML = '';
+    return;
+  }
+
+  mapInstance = L.map('map-container').setView([-22.5, -46.5], 6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(mapInstance);
+
+  const consColors = {};
+  CONS.forEach((c, i) => { consColors[c] = CONS_COLORS_MAP[i % CONS_COLORS_MAP.length]; });
+
+  const cityGroups = {};
+  let plotted = 0, missed = 0;
+
+  evts.forEach(evt => {
+    const city = extractCity(evt.unidade);
+    const coords = CITY_COORDS[city];
+    if (!coords) { missed++; return; }
+
+    // Slight jitter for same-coord grouping
+    const jLat = coords[0] + (Math.random() - 0.5) * 0.02;
+    const jLng = coords[1] + (Math.random() - 0.5) * 0.02;
+    const key = city + '|' + evt.consultor;
+    if (!cityGroups[key]) cityGroups[key] = {lat: jLat, lng: jLng, city, consultor: evt.consultor, visits: []};
+    cityGroups[key].visits.push(evt.unidade);
+    plotted++;
+  });
+
+  Object.values(cityGroups).forEach(({lat, lng, city, consultor, visits}) => {
+    const color = consColors[consultor] || '#555';
+    const circle = L.circleMarker([lat, lng], {
+      radius: Math.min(6 + visits.length * 1.5, 16),
+      fillColor: color,
+      color: '#fff',
+      weight: 1.5,
+      opacity: 1,
+      fillOpacity: 0.85
+    });
+    const ini = consultor.split(' ').map(w=>w[0]).join('').slice(0,2);
+    circle.bindPopup(`<b>${city}</b><br><span style="color:${color}">●</span> ${consultor}<br><small>${visits.join('<br>')}</small>`);
+    circle.addTo(mapInstance);
+  });
+
+  const activeCons = fc === 'todos' ? CONS.filter(c => evts.some(e => e.consultor === c)) : [fc];
+  if (legendEl) legendEl.innerHTML = activeCons.map(c =>
+    `<div class="map-leg-item"><div class="map-leg-dot" style="background:${consColors[c]}"></div>${c}</div>`
+  ).join('');
+
+  if (statusEl) statusEl.textContent = `${plotted} visita${plotted!==1?'s':''} plotada${plotted!==1?'s':''}${missed?' · '+missed+' sem coordenadas':''}`;
+}
+
+
+// ─── INDIVIDUAL HTML ──────────────────────────────────────────────────────────
+function hIndividual(){
+  const active=CONS.filter(c=>eventos.some(e=>e.consultor===c));
+  if(!active.length)return'<div class="empty">Nenhum dado cadastrado ainda.</div>';
+  return active.map(c=>{
+    const col=avc(c),g=stats(eventos.filter(e=>e.consultor===c)),bc=txCol(g.tx);
+    return`<div class="ind-card"><div class="ind-row">
+      <div class="avatar" style="background:${col.bg};color:${col.tc}">${ini2(c)}</div>
+      <div class="ind-info"><div class="ind-name">${c}</div><div class="pills">
+        ${g.totM?`<span class="pill pill-m">Mensal ${g.txM}% (${g.realM}/${g.totM})</span>`:''}
+        ${g.totA?`<span class="pill pill-a">Auditoria ${g.txA}% (${g.realA}/${g.totA})</span>`:''}
+        ${g.canc>0?`<span class="pill" style="background:#fee2e2;color:#7a1a1a">&#9888; ${g.canc} cancelada${g.canc>1?'s':''} (${g.pctCanc}%)</span>`:''}
+      </div></div>
+      <div class="ind-bar-wrap"><div class="ind-bar-track"><div class="ind-bar-fill" style="width:${g.tx}%;background:${bc}"></div></div>
+      <div class="ind-bar-lbl">${g.real} de ${g.tot}</div></div>
+      <div class="ind-pct" style="color:${bc}">${g.tx}%</div>
+    </div></div>`;
+  }).join('');
+}
+
+// ─── MODAL HTML ───────────────────────────────────────────────────────────────
+function hModal(e,isC){
+  const cv=e.consultor||(isC?consAtivo:CONS[0]);
+  const uns=(UNI[cv]||[]).map(u=>{const city=getCity(u);return`<option value="${u}" ${e.unidade===u?'selected':''}>${u}${city?' · '+city:''}</option>`;}).join('');
+  const saveFn=isC?'cSave':'gSave', delFn=isC?'cDel':'gDel', closeFn=isC?'cClose':'gClose', cancelFn=isC?'cCancelar':'gCancelar';
+  const consField=isC
+    ?`<input type="hidden" id="f-cons" value="${consAtivo}"/>`
+    :`<div class="form-row"><label>Consultor</label><select id="f-cons" onchange="onConsChange(this.value)">${CONS.map(c=>`<option value="${c}" ${cv===c?'selected':''}>${c}</option>`).join('')}</select></div>`;
+  return`<div class="modal-overlay" onclick="if(event.target===this)${closeFn}()">
+    <div class="modal-box">
+      <div class="modal-title">${e.id?'Editar visita':'Nova visita'}</div>
+      <div class="conf-alert" id="conf-al"></div>
+      ${e.agendadoEm?`<div style="font-size:11px;color:var(--text3);margin-bottom:8px">📅 Agendado em: ${new Date(e.agendadoEm).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>`:''}
+      <div class="form-row"><label>Tipo</label><select id="f-tipo">
+        <option value="mensal" ${e.tipo==='mensal'?'selected':''}>Reunião mensal (1x/mês)</option>
+        <option value="auditoria" ${e.tipo==='auditoria'?'selected':''}>Auditoria (1x/semestre)</option>
+        <option value="treinamento" ${e.tipo==='treinamento'?'selected':''}>Treinamento</option>
+        <option value="home_office" ${e.tipo==='home_office'?'selected':''}>Home office</option>
+        <option value="ferias" ${e.tipo==='ferias'?'selected':''}>Férias</option>
+        <option value="banco_horas" ${e.tipo==='banco_horas'?'selected':''}>Banco de horas</option>
+      </select></div>
+      ${consField}
+      <div class="form-row"><label>Unidade</label><select id="f-uni">
+        <option value="">— selecione —</option>${uns}
+      </select></div>
+      <div class="form-row"><label>Data início</label><input id="f-ini" type="date" value="${e.inicio||tds()}"/></div>
+      <div class="form-row"><label>Data fim</label><input id="f-fim" type="date" value="${e.fim||tds()}"/></div>
+      <div class="form-row"><label>Status</label><select id="f-sta" onchange="(function(v){var r=document.getElementById('motivo-row');if(r)r.style.display=v==='cancelado'?'flex':'none';var t=document.getElementById('transp-row');if(t)t.style.display=v==='cancelado'?'none':'flex';})(this.value)">
+        <option value="agendado" ${!e.status||e.status==='agendado'?'selected':''}>Agendado</option>
+        <option value="realizado" ${e.status==='realizado'?'selected':''}>Realizado</option>
+        <option value="cancelado" ${e.status==='cancelado'?'selected':''}>Cancelado / Remarcado</option>
+      </select></div>
+      <div class="form-row" id="motivo-row" style="display:${e.status==='cancelado'?'flex':'none'}">
+        <label>Motivo do cancelamento</label>
+        <select id="f-motivo">
+          <option value="" ${!e.motivoCancelamento?'selected':''}>— selecione o motivo —</option>
+          <option value="alinhamento_estrategico" ${e.motivoCancelamento==='alinhamento_estrategico'?'selected':''}>Aguardando alinhamento estratégico entre áreas</option>
+          <option value="conflito_agenda" ${e.motivoCancelamento==='conflito_agenda'?'selected':''}>Conflito de agenda entre participantes</option>
+          <option value="consultor_cancelou" ${e.motivoCancelamento==='consultor_cancelou'?'selected':''}>Consultor cancelou</option>
+          <option value="franqueado_solicitou" ${e.motivoCancelamento==='franqueado_solicitou'?'selected':''}>Franqueado | Gerente solicitou cancelamento</option>
+          <option value="materiais_nao_finalizados" ${e.motivoCancelamento==='materiais_nao_finalizados'?'selected':''}>Materiais de apoio não finalizados</option>
+        </select>
+      </div>\${e.status!=='cancelado'?'':''}
+      <div class="form-row" id="transp-row" style="display:${e.status==='cancelado'?'none':'flex'}"><label>Transporte</label><select id="f-transp">
+        <option value="" ${!e.transporte?'selected':''}>— selecione —</option>
+        <option value="aviao" ${e.transporte==='aviao'?'selected':''}>Avião</option>
+        <option value="carro_proprio" ${e.transporte==='carro_proprio'?'selected':''}>Carro próprio</option>
+        <option value="frota" ${e.transporte==='frota'?'selected':''}>Frota</option>
+        <option value="onibus" ${e.transporte==='onibus'?'selected':''}>Ônibus</option>
+        <option value="transporte_aplicativo" ${e.transporte==='transporte_aplicativo'?'selected':''}>Transporte aplicativo</option>
+      </select></div>
+      <div class="modal-actions">
+        ${e.id?`<button class="btn btn-danger" onclick="${delFn}(${e.id})">Excluir</button>`:''}
+        <button class="btn" onclick="${closeFn}()">Fechar</button>
+        <button class="btn btn-primary" onclick="${saveFn}(${e.id||0})">Salvar</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function onConsChange(c){
+  const sel=document.getElementById('f-uni');
+  if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— selecione —</option>'+(UNI[c]||[]).map(u=>`<option value="${u}" ${u===cur?'selected':''}>${u}</option>`).join('');
+}
+
+function readForm(id){
+  const tipo=document.getElementById('f-tipo').value;
+  const cons=document.getElementById('f-cons').value;
+  const uni=document.getElementById('f-uni').value;
+  const ini=document.getElementById('f-ini').value;
+  const fim=document.getElementById('f-fim').value;
+  const sta=document.getElementById('f-sta').value;
+  if(!uni||!ini||!fim){alert('Preencha todos os campos.');return null;}
+  if(fim<ini){alert('Data fim não pode ser anterior à data início.');return null;}
+  const cf=conflict(cons,tipo,ini,id||null,uni);
+  if(cf.length){
+    const al=document.getElementById('conf-al');
+    const periodo=tipo==='mensal'?'neste mês':'neste semestre';
+    al.textContent=`Esta unidade já tem ${tipo==='mensal'?'reunião mensal':'auditoria'} agendada ${periodo}.`;
+    al.classList.add('show');return null;
+  }
+  const transp=document.getElementById('f-transp').value;
+  const motivoEl=document.getElementById('f-motivo');
+  const motivo=motivoEl?motivoEl.value:'';
+  if(id){eventos=eventos.map(e=>e.id===id?{id,consultor:cons,unidade:uni,tipo,inicio:ini,fim:fim,status:sta,transporte:transp,agendadoEm:e.agendadoEm,motivoCancelamento:sta==='cancelado'?motivo:''}:e);}
+  else{eventos.push({id:nextId++,consultor:cons,unidade:uni,tipo,inicio:ini,fim:fim,status:sta,transporte:transp,agendadoEm:new Date().toISOString(),motivoCancelamento:''});}
+  save();
+  return parseD(ini);
+}
+
+
+// ─── RESUMO AUDITORIAS ────────────────────────────────────────────────────────
+function hResumo(){
+  const consultores = Object.keys(TOTAL_UNI);
+  const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  // detect which months have any auditoria event
+  const monthsWithData = [...new Set(
+    eventos.filter(e=>e.tipo==='auditoria').map(e=>parseInt(e.inicio.split('-')[1])-1)
+  )].sort((a,b)=>a-b);
+
+  function byMes(c, mo, status){
+    return eventos.filter(e=>e.consultor===c&&e.tipo==='auditoria'&&e.status===status&&parseInt(e.inicio.split('-')[1])-1===mo).length;
+  }
+  function totByMes(mo, status){
+    return consultores.reduce((s,c)=>s+byMes(c,mo,status),0);
+  }
+
+  const thStyle = `padding:8px 10px;text-align:center;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap`;
+  const thLeft = `padding:8px 14px;text-align:left;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em`;
+
+  const monthHeaders = monthsWithData.map(mo=>`
+    <th colspan="2" style="${thStyle};border-left:1px solid var(--border)">${MESES[mo]}</th>`).join('');
+
+  const monthSubHeaders = monthsWithData.map(mo=>`
+    <th style="${thStyle};border-left:1px solid var(--border);color:#2d6a27;font-size:9px">Real.</th>
+    <th style="${thStyle};color:#1a4f82;font-size:9px">Agend.</th>`).join('');
+
+  const rows = consultores.map(c => {
+    const col = avc(c);
+    const total = TOTAL_UNI[c];
+    const realizadas = eventos.filter(e=>e.consultor===c&&e.tipo==='auditoria'&&e.status==='realizado').length;
+    const agendadas = eventos.filter(e=>e.consultor===c&&e.tipo==='auditoria'&&e.status==='agendado').length;
+    const canceladas = eventos.filter(e=>e.consultor===c&&e.tipo==='auditoria'&&e.status==='cancelado').length;
+    const pendentes = total - realizadas - agendadas - canceladas;
+    const pct = Math.round(realizadas / total * 100);
+    const bc = pct>=70?'#2d6a27':pct>=40?'#7a4800':'#c0392b';
+
+    const monthCells = monthsWithData.map(mo=>{
+      const r=byMes(c,mo,'realizado'), a=byMes(c,mo,'agendado');
+      return `
+        <td style="padding:8px 10px;text-align:center;font-size:12px;border-left:1px solid var(--border);font-family:'DM Mono',monospace;color:#2d6a27;font-weight:${r?'600':'400'}">${r||'-'}</td>
+        <td style="padding:8px 10px;text-align:center;font-size:12px;font-family:'DM Mono',monospace;color:#1a4f82">${a||'-'}</td>`;
+    }).join('');
+
+    return `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:8px 14px;white-space:nowrap">
+        <div style="display:flex;align-items:center;gap:7px">
+          <div class="avatar" style="width:26px;height:26px;font-size:9px;flex-shrink:0;background:${col.bg};color:${col.tc}">${ini2(c)}</div>
+          <span style="font-size:12px;font-weight:500">${c}</span>
+        </div>
+      </td>
+      <td style="padding:8px 10px;text-align:center;font-size:12px;font-family:'DM Mono',monospace;font-weight:600">${total}</td>
+      <td style="padding:8px 10px;text-align:center;font-size:12px;font-weight:600;color:#2d6a27">${realizadas}</td>
+      <td style="padding:8px 10px;text-align:center;font-size:12px;color:#1a4f82">${agendadas}</td>
+      <td style="padding:8px 10px;text-align:center;font-size:12px;color:#c0392b;font-weight:${canceladas?'600':'400'}">${canceladas||'-'}</td>
+      <td style="padding:8px 10px;text-align:center;font-size:12px;color:var(--text3)">${pendentes>0?pendentes:'-'}</td>
+      <td style="padding:8px 14px;min-width:120px">
+        <div style="display:flex;align-items:center;gap:7px">
+          <div style="flex:1;height:5px;border-radius:3px;background:var(--border);overflow:hidden">
+            <div style="height:100%;border-radius:3px;background:${bc};width:${pct}%"></div>
+          </div>
+          <span style="font-size:11px;font-weight:600;color:${bc};min-width:30px;text-align:right;font-family:'DM Mono',monospace">${pct}%</span>
+        </div>
+      </td>
+      ${monthCells}
+    </tr>`;
+  }).join('');
+
+  const totTotal=consultores.reduce((s,c)=>s+TOTAL_UNI[c],0);
+  const totReal=consultores.reduce((s,c)=>s+eventos.filter(e=>e.consultor===c&&e.tipo==='auditoria'&&e.status==='realizado').length,0);
+  const totAg=consultores.reduce((s,c)=>s+eventos.filter(e=>e.consultor===c&&e.tipo==='auditoria'&&e.status==='agendado').length,0);
+  const totCanc=consultores.reduce((s,c)=>s+eventos.filter(e=>e.consultor===c&&e.tipo==='auditoria'&&e.status==='cancelado').length,0);
+  const totPend=totTotal-totReal-totAg-totCanc;
+  const totPct=Math.round(totReal/totTotal*100);
+  const totBc=totPct>=70?'#2d6a27':totPct>=40?'#7a4800':'#c0392b';
+
+  const totMonthCells=monthsWithData.map(mo=>{
+    const r=totByMes(mo,'realizado'),a=totByMes(mo,'agendado');
+    return `<td style="padding:8px 10px;text-align:center;font-size:12px;font-weight:600;border-left:1px solid var(--border);font-family:'DM Mono',monospace;color:#2d6a27">${r||'-'}</td>
+            <td style="padding:8px 10px;text-align:center;font-size:12px;font-weight:600;font-family:'DM Mono',monospace;color:#1a4f82">${a||'-'}</td>`;
+  }).join('');
+
+  return `
+  <div class="section-label">Resumo de auditorias — semestre</div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);overflow:auto;margin-bottom:16px">
+    <table style="width:100%;border-collapse:collapse;min-width:700px">
+      <thead>
+        <tr style="background:var(--surface2);border-bottom:1px solid var(--border)">
+          <th style="${thLeft}" rowspan="2">Consultor</th>
+          <th style="${thStyle}" rowspan="2">Total</th>
+          <th style="${thStyle}" rowspan="2">Realiz.</th>
+          <th style="${thStyle}" rowspan="2">Agend.</th>
+          <th style="${thStyle};color:#c0392b" rowspan="2">Cancelad.</th>
+          <th style="${thStyle}" rowspan="2">Pend.</th>
+          <th style="${thStyle};min-width:110px" rowspan="2">Progresso</th>
+          ${monthHeaders}
+        </tr>
+        <tr style="background:var(--surface2);border-bottom:2px solid var(--border2)">
+          ${monthSubHeaders}
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+      <tfoot>
+        <tr style="background:var(--surface2);border-top:2px solid var(--border2)">
+          <td style="padding:8px 14px;font-size:12px;font-weight:600">Total geral</td>
+          <td style="padding:8px 10px;text-align:center;font-size:12px;font-weight:600;font-family:'DM Mono',monospace">${totTotal}</td>
+          <td style="padding:8px 10px;text-align:center;font-size:12px;font-weight:600;color:#2d6a27">${totReal}</td>
+          <td style="padding:8px 10px;text-align:center;font-size:12px;color:#1a4f82">${totAg}</td>
+          <td style="padding:8px 10px;text-align:center;font-size:12px;font-weight:600;color:#c0392b">${totCanc||'-'}</td>
+          <td style="padding:8px 10px;text-align:center;font-size:12px;color:var(--text3)">${totPend>0?totPend:'-'}</td>
+          <td style="padding:8px 14px">
+            <div style="display:flex;align-items:center;gap:7px">
+              <div style="flex:1;height:5px;border-radius:3px;background:var(--border);overflow:hidden">
+                <div style="height:100%;border-radius:3px;background:${totBc};width:${totPct}%"></div>
+              </div>
+              <span style="font-size:11px;font-weight:600;color:${totBc};min-width:30px;text-align:right;font-family:'DM Mono',monospace">${totPct}%</span>
+            </div>
+          </td>
+          ${totMonthCells}
+        </tr>
+      </tfoot>
+    </table>
+  </div>`;
+}
+
+// ─── GESTOR ───────────────────────────────────────────────────────────────────
+function rG(){
+  let h=hMetrics(eventos);
+  h+=hTransporte();
+  h+=`<div class="tab-row">
+    <div class="tab ${gTab==='gantt'?'active':''}" onclick="gTab='gantt';rG()">Gantt do time</div>
+    <div class="tab ${gTab==='ind'?'active':''}" onclick="gTab='ind';rG()">Individual</div>
+    <div class="tab ${gTab==='resumo'?'active':''}" onclick="gTab='resumo';rG()">Resumo auditorias</div>
+    <div class="tab ${gTab==='mapa'?'active':''}" onclick="gTab='mapa';rG()">🗺 Mapa</div>
+    <div class="tab ${gTab==='cobertura'?'active':''}" onclick="gTab='cobertura';rG()">📋 Cobertura</div>
+  </div>`;
+  h+= gTab==='gantt' ? hGantt(gY,gM,gFc,gFt,'gEdit','gNew',true,gZoom) : gTab==='ind' ? hIndividual() : gTab==='resumo' ? hResumo() : gTab==='mapa' ? hMapa() : hCobertura();
+  if(gModal) h+=hModal(gEvt||{},false);
+  document.getElementById('view-g').innerHTML=h;
+  if(gTab==='mapa') setTimeout(renderMap, 50);
+}
+function gPrev(){gM===0?(gM=11,gY--):gM--;rG();}
+function gNext(){gM===11?(gM=0,gY++):gM++;rG();}
+function gNew(){gEvt={};gModal=true;rG();}
+function gEdit(id){gEvt={...eventos.find(e=>e.id===id)};gModal=true;rG();}
+function gClose(){gModal=false;gEvt=null;rG();}
+function gDel(id){if(!confirm('Excluir esta visita?'))return;eventos=eventos.filter(e=>e.id!==id);save();gModal=false;gEvt=null;rG();}
+function gCancelar(id){if(!confirm('Marcar como cancelada/remarcada? A visita ficará em vermelho no Gantt e uma nova deverá ser criada.'))return;eventos=eventos.map(e=>e.id===id?{...e,status:'cancelado'}:e);save();gModal=false;gEvt=null;rG();}
+function gSave(id){const d=readForm(id);if(!d)return;gY=d.getFullYear();gM=d.getMonth();gModal=false;gEvt=null;rG();rC();}
+
+// ─── CONSULTOR ────────────────────────────────────────────────────────────────
+let cFt='todos';
+function rC(){
+  const el=document.getElementById('view-c');
+  if(!consAtivo){
+    el.innerHTML=`<div class="cons-pick-box">
+      <div class="cons-pick-title">Bem-vindo, consultor!</div>
+      <div class="cons-pick-sub">Selecione seu nome para registrar suas visitas.</div>
+      <div class="cons-pick-row">
+        <select id="cpick"><option value="">— escolha seu nome —</option>
+          ${CONS.map(c=>`<option value="${c}">${c}</option>`).join('')}
+        </select>
+        <button class="btn btn-primary" onclick="cLogin()">Entrar</button>
+      </div>
+    </div>`;
+    return;
+  }
+  const col=avc(consAtivo),g=stats(eventos.filter(e=>e.consultor===consAtivo)),bc=txCol(g.tx);
+  const sorted=[...eventos.filter(e=>e.consultor===consAtivo)].sort((a,b)=>b.inicio.localeCompare(a.inicio));
+  const rows=sorted.length?sorted.map(e=>`
+    <div class="visit-row">
+      <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:140px">
+        <div class="visit-unidade">${e.unidade}${getCity(e.unidade)?'<span style="font-size:10px;color:var(--text3);font-weight:400;margin-left:6px">· '+getCity(e.unidade)+'</span>':'' }</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">${e.agendadoEm?'📅 Agend. em '+new Date(e.agendadoEm).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):''}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:1px">${e.transporte?'✈ '+{aviao:'Avião',carro_proprio:'Carro próprio',frota:'Frota',onibus:'Ônibus',transporte_aplicativo:'Transp. aplicativo'}[e.transporte]||'':''}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <span class="${e.tipo==='mensal'?'tb-m':'tb-a'}">${e.tipo==='mensal'?'Mensal':'Auditoria'}</span>
+          <span class="${e.status==='realizado'?'sb-re':e.status==='cancelado'?'sb-ca':'sb-ag'}">${e.status==='cancelado'?'&#9888; cancelado':e.status}</span>
+        </div>
+      </div>
+      <div class="visit-date">${e.inicio}${e.fim!==e.inicio?' → '+e.fim:''}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${e.status!=='cancelado'?`<button class="btn btn-sm" onclick="cEdit(${e.id})">Editar</button>`:''}
+        ${e.status==='agendado'?`<button class="btn btn-sm btn-success" onclick="cRealizar(${e.id})">&#10003; Realizado</button>`:''}
+        ${e.status==='cancelado'?`<button class="btn btn-sm" style="color:var(--text3);cursor:default" disabled>Remarcada</button>`:''}
+      </div>
+    </div>`).join(''):'<div class="empty">Nenhuma visita ainda. Clique em "+ Nova visita" para começar!</div>';
+
+  let h=`
+  <div class="cons-header">
+    <div class="avatar" style="background:${col.bg};color:${col.tc};width:48px;height:48px;font-size:15px">${ini2(consAtivo)}</div>
+    <div style="flex:1"><div class="cons-hname">${consAtivo}</div><div class="cons-hsub">${sorted.length} visita${sorted.length!==1?'s':''} registrada${sorted.length!==1?'s':''}</div></div>
+    <button class="btn btn-sm" onclick="cLogout()">Trocar consultor</button>
+  </div>
+  <div class="cons-stats">
+    <div class="cons-stat"><div class="lbl">Taxa geral</div><div class="val" style="color:${bc}">${g.tx}%</div><div class="sub">${g.real}/${g.tot}</div></div>
+    <div class="cons-stat"><div class="lbl">Mensal</div><div class="val" style="color:#1a4f82">${g.txM}%</div><div class="sub">${g.realM}/${g.totM}</div></div>
+    <div class="cons-stat"><div class="lbl">Auditoria</div><div class="val" style="color:#1a5216">${g.txA}%</div><div class="sub">${g.realA}/${g.totA}</div></div>
+    <div class="cons-stat"><div class="lbl">Pendentes</div><div class="val">${g.tot-g.real}</div><div class="sub">a realizar</div></div>
+    ${g.canc>0?`<div class="cons-stat" style="background:#fff5f5;border-color:#f5c6c3"><div class="lbl" style="color:#7a1a1a">&#9888; Canceladas</div><div class="val" style="color:#c0392b">${g.canc}</div><div class="sub" style="color:#7a1a1a">${g.pctCanc}% do agendado</div></div>`:''}
+  </div>
+  <div class="toolbar"><button class="btn btn-primary" onclick="cNew()">+ Nova visita</button></div>
+  <div class="visit-list-wrap">
+    <div class="vlist-header"><span class="vlist-title">Minhas visitas</span><span style="font-size:11px;color:var(--text3)">${sorted.length} registros</span></div>
+    ${rows}
+  </div>`;
+  if(cModal) h+=hModal(cEvt||{},true);
+  el.innerHTML=h;
+}
+
+function cLogin(){const v=document.getElementById('cpick').value;if(!v){alert('Selecione seu nome.');return;}consAtivo=v;document.getElementById('badge-c').textContent=v.split(' ')[0];rC();}
+function cLogout(){consAtivo=null;document.getElementById('badge-c').textContent='preencher visitas';rC();}
+function cNew(){cEvt={consultor:consAtivo};cModal=true;rC();}
+function cEdit(id){cEvt={...eventos.find(e=>e.id===id)};cModal=true;rC();}
+function cClose(){cModal=false;cEvt=null;rC();}
+function cDel(id){if(!confirm('Excluir?'))return;eventos=eventos.filter(e=>e.id!==id);save();cModal=false;cEvt=null;rC();rG();}
+function cCancelar(id){if(!confirm('Marcar como cancelada/remarcada? A visita ficará em vermelho e uma nova deverá ser criada.'))return;eventos=eventos.map(e=>e.id===id?{...e,status:'cancelado'}:e);save();cModal=false;cEvt=null;rC();rG();}
+function cRealizar(id){eventos=eventos.map(e=>e.id===id?{...e,status:'realizado'}:e);save();rC();rG();}
+function cSave(id){const d=readForm(id);if(!d)return;cModal=false;cEvt=null;rC();rG();}
+
+// ─── NAVEGAÇÃO ────────────────────────────────────────────────────────────────
+function switchView(v){
+  view=v;
+  document.getElementById('atab-g').className='app-tab'+(v==='gestor'?' active':'');
+  document.getElementById('atab-c').className='app-tab'+(v==='consultor'?' active':'');
+  document.getElementById('view-g').style.display=v==='gestor'?'block':'none';
+  document.getElementById('view-c').style.display=v==='consultor'?'block':'none';
+}
+
+// ─── SYNC MANUAL ─────────────────────────────────────────────────────────────
+async function syncManual(){
+  const ok = await loadFromSheets();
+  if(ok){ rG(); rC(); }
+  else { setSyncStatus('err'); }
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+(async function(){
+  const n=now(); gY=n.getFullYear(); gM=n.getMonth();
+  document.getElementById('today-lbl').textContent=n.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  // carrega local primeiro (instantâneo)
+  load();
+  rG(); rC();
+  // depois tenta buscar dados atualizados da planilha
+  const ok = await loadFromSheets();
+  if(ok){ rG(); rC(); }
+  // sincroniza outras abas do mesmo navegador
+  window.addEventListener('storage', e=>{ if(e.key===KEY){ loadLocal(); rG(); rC(); } });
+  // auto-sync a cada 60s
+  setInterval(async()=>{ const ok=await loadFromSheets(); if(ok){rG();rC();} }, 60000);
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+</body>
+</html>
